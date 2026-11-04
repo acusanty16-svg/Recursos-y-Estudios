@@ -188,18 +188,30 @@ html.dark {
     @apply bg-parchment-100/10;
   }
 
-  /* Subrayados por color, legibles en ambos temas. */
+  /* Resaltado completo del versículo, legible en ambos temas. */
   .sv-hl-gold {
-    background: linear-gradient(transparent 58%, color-mix(in oklab, var(--color-gold-400) 55%, transparent) 58%);
+    --sv-highlight-color: var(--color-gold-400);
   }
   .sv-hl-sage {
-    background: linear-gradient(transparent 58%, color-mix(in oklab, var(--color-sage-300) 60%, transparent) 58%);
+    --sv-highlight-color: var(--color-sage-300);
   }
   .sv-hl-sky {
-    background: linear-gradient(transparent 58%, color-mix(in oklab, var(--color-sky-300) 60%, transparent) 58%);
+    --sv-highlight-color: var(--color-sky-300);
   }
   .sv-hl-rose {
-    background: linear-gradient(transparent 58%, color-mix(in oklab, var(--color-rose-300) 60%, transparent) 58%);
+    --sv-highlight-color: var(--color-rose-300);
+  }
+
+  .sv-verse-highlight {
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    background-color: color-mix(in oklab, var(--sv-highlight-color) 28%, transparent);
+    transition: background-color 200ms ease;
+  }
+
+  .dark .sv-verse-highlight {
+    background-color: color-mix(in oklab, var(--sv-highlight-color) 24%, transparent);
   }
 
   /* Lector: barra fija y columnas de comparación. */
@@ -214,6 +226,12 @@ html.dark {
   .sv-compare-panel {
     @apply rounded-xl border border-sky-500/20 bg-sky-300/15 p-3 dark:border-sky-300/15 dark:bg-sky-400/[0.08];
     animation: sv-fade-in 240ms ease-out both;
+  }
+
+  /* El fondo del resaltado ya cubre la columna de comparación. */
+  .sv-compare-panel.sv-compare-panel-highlighted,
+  .dark .sv-compare-panel.sv-compare-panel-highlighted {
+    background-color: transparent;
   }
 
   .sv-verse-active {

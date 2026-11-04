@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { Note } from '@model/types';
 import { useI18n } from '@ui/hooks/useI18n';
 import { CloseIcon, NoteIcon } from '@ui/components/icons';
@@ -31,7 +32,7 @@ export function NotesDrawer({ notes, onEdit, onDelete, onOpenVerse, onClose }: N
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50"
       role="dialog"
@@ -72,6 +73,7 @@ export function NotesDrawer({ notes, onEdit, onDelete, onOpenVerse, onClose }: N
           <NotesPanel notes={notes} onEdit={onEdit} onDelete={onDelete} onOpenVerse={onOpenVerse} />
         </div>
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 }

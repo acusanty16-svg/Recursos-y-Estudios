@@ -65,34 +65,40 @@ export function VerseRow({
         active ? 'sv-verse-active' : 'hover:bg-navy-900/[0.025] dark:hover:bg-parchment-100/[0.03]',
       ].join(' ')}
     >
-      <div className={comparisonTranslation ? 'md:grid md:grid-cols-2 md:gap-6' : ''}>
-        <div className="flex gap-3">
-          <span
-            className={[
-              'w-5 shrink-0 select-none pt-1 text-right font-sans text-[11px] font-semibold tabular-nums transition-colors',
-              active
-                ? 'text-ember-700 dark:text-ember-300'
-                : 'text-ember-600/70 dark:text-ember-300/60',
-            ].join(' ')}
-            aria-hidden="true"
-          >
-            {verse.number}
-          </span>
-          <p className={`sv-scripture min-w-0 text-navy-900 dark:text-parchment-50 ${highlightClass}`}>
-            {verse.text}
-          </p>
-        </div>
-
-        {comparisonTranslation ? (
-          <div className="sv-compare-panel mt-3 md:mt-0">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:text-sky-300 md:hidden">
-              {comparisonTranslation}
+      <div className={highlight ? `sv-verse-highlight ${highlightClass}` : ''}>
+        <div className={comparisonTranslation ? 'md:grid md:grid-cols-2 md:gap-6' : ''}>
+          <div className="flex gap-3">
+            <span
+              className={[
+                'w-5 shrink-0 select-none pt-1 text-right font-sans text-[11px] font-semibold tabular-nums transition-colors',
+                active
+                  ? 'text-ember-700 dark:text-ember-300'
+                  : 'text-ember-600/70 dark:text-ember-300/60',
+              ].join(' ')}
+              aria-hidden="true"
+            >
+              {verse.number}
             </span>
-            <p className="sv-scripture text-navy-800 dark:text-parchment-100">
-              {comparisonText ?? <span className="opacity-50">—</span>}
+            <p className="sv-scripture min-w-0 text-navy-900 dark:text-parchment-50">
+              {verse.text}
             </p>
           </div>
-        ) : null}
+
+          {comparisonTranslation ? (
+            <div
+              className={`sv-compare-panel mt-3 md:mt-0 ${
+                highlight ? 'sv-compare-panel-highlighted' : ''
+              }`}
+            >
+              <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:text-sky-300 md:hidden">
+                {comparisonTranslation}
+              </span>
+              <p className="sv-scripture text-navy-800 dark:text-parchment-100">
+                {comparisonText ?? <span className="opacity-50">—</span>}
+              </p>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-1.5 flex flex-wrap items-center gap-0.5 pl-8 opacity-60 transition-opacity group-hover:opacity-100 focus-within:opacity-100 md:opacity-40">

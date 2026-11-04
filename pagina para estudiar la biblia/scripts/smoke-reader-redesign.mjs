@@ -114,6 +114,16 @@ await mobile.getByRole('button', { name: 'Cerrar' }).click();
 await mobile.waitForTimeout(300);
 check('panel de notas móvil cerrado', !(await mobile.getByText('Notas del capítulo').isVisible()));
 
+// Nota en móvil: el botón debe quedar por encima de la barra inferior.
+await mobile.getByRole('button', { name: 'Añadir nota' }).first().click();
+await mobile.waitForSelector('#note-body');
+const mobileSaveNote = mobile.getByRole('button', { name: 'Guardar nota' });
+check('botón guardar nota visible en móvil', await mobileSaveNote.isVisible());
+await mobile.fill('#note-body', 'Nota móvil de regresión.');
+await mobileSaveNote.click();
+await mobile.waitForTimeout(600);
+check('nota guardada desde móvil', await mobile.getByText('Nota móvil de regresión.').first().isVisible());
+
 console.log('\n--- ERRORS ---');
 if (errors.length === 0) console.log('none');
 else for (const error of errors) console.log(error);

@@ -47,6 +47,22 @@ const bodyText = await page.locator('body').innerText();
 check('comparación NTV cargada', bodyText.includes('la Palabra ya existía'));
 check('texto sin HTML crudo', !bodyText.includes('<br>'));
 
+const highlightState = await page.evaluate(() => {
+  const row = document.getElementById('v1');
+  const wrapper = row?.querySelector('.sv-verse-highlight');
+  const panel = row?.querySelector('.sv-compare-panel');
+  return {
+    hasWrapper: Boolean(wrapper),
+    containsComparison: Boolean(wrapper && panel && wrapper.contains(panel)),
+    background: wrapper ? getComputedStyle(wrapper).backgroundColor : '',
+  };
+});
+check(
+  'resaltado cubre el versículo completo',
+  highlightState.hasWrapper && highlightState.background !== 'rgba(0, 0, 0, 0)',
+);
+check('resaltado incluye la comparación', highlightState.containsComparison);
+
 await page.screenshot({ path: `${OUT}/reader-with-note.png`, fullPage: false });
 
 // Mis notas

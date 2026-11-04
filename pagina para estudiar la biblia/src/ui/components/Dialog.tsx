@@ -1,5 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useI18n } from '@ui/hooks/useI18n';
+import { useVisualViewport } from '@ui/hooks/useVisualViewport';
 import { CloseIcon } from './icons';
 
 interface DialogProps {
@@ -16,6 +18,7 @@ interface DialogProps {
  */
 export function Dialog({ title, subtitle, onClose, children, size = 'md' }: DialogProps) {
   const { t } = useI18n();
+  const viewport = useVisualViewport();
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent): void => {
@@ -30,9 +33,10 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      className="fixed inset-x-0 z-50 flex items-end justify-center bg-navy-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      style={{ top: viewport.offsetTop, height: viewport.height, bottom: 'auto' }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="sv-dialog-title"
@@ -42,7 +46,7 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
     >
       <div
         className={[
-          'sv-dialog-panel max-h-[90dvh] w-full overflow-y-auto rounded-t-2xl border border-navy-900/10 bg-parchment-50 p-5 shadow-2xl sv-scroll sm:rounded-2xl dark:border-parchment-100/15 dark:bg-navy-900',
+          'sv-dialog-panel max-h-full w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-navy-900/10 bg-parchment-50 p-5 shadow-2xl sv-scroll sm:rounded-2xl dark:border-parchment-100/15 dark:bg-navy-900',
           size === 'lg' ? 'max-w-2xl' : 'max-w-lg',
         ].join(' ')}
       >
@@ -66,6 +70,7 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
