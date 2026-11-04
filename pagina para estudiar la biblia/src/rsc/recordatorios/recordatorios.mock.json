@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "reminders": [
+    {
+      "id": "manana",
+      "titleEs": "Comenzar el día con la Palabra",
+      "titleEn": "Start the day with the Word",
+      "messageEs": "Un capítulo breve antes del ruido del día.",
+      "messageEn": "One short chapter before the noise of the day.",
+      "time": "07:00",
+      "days": ["mon", "tue", "wed", "thu", "fri"],
+      "enabled": true
+    },
+    {
+      "id": "noche",
+      "titleEs": "Cierre devocional",
+      "titleEn": "Evening devotion",
+      "messageEs": "Lee, subraya y escribe una nota de gratitud.",
+      "messageEn": "Read, highlight and write a note of gratitude.",
+      "time": "21:30",
+      "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      "enabled": false
+    },
+    {
+      "id": "domingo",
+      "titleEs": "Preparar el corazón",
+      "titleEn": "Prepare your heart",
+      "messageEs": "Un salmo para acompañar el domingo.",
+      "messageEn": "A psalm to accompany your Sunday.",
+      "time": "09:00",
+      "days": ["sun"],
+      "enabled": true
+    }
+  ]
+}

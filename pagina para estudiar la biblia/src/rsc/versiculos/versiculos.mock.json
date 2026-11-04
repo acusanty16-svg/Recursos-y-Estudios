@@ -1,0 +1,137 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "description": "Conjunto devocional de versículos en RV1960, NTV y NLT. Sustituible por un JSON completo.",
+  "verses": [
+    {
+      "bookNumber": 43,
+      "chapter": 3,
+      "verse": 16,
+      "translations": {
+        "RV1960": "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.",
+        "NTV": "Pues Dios amó tanto al mundo, que dio a su Hijo único, para que todo aquel que cree en él no muera, sino que tenga vida eterna.",
+        "NLT": "For this is how God loved the world: He gave his one and only Son, so that everyone who believes in him will not perish but have eternal life."
+      }
+    },
+    {
+      "bookNumber": 19,
+      "chapter": 23,
+      "verse": 1,
+      "translations": {
+        "RV1960": "Jehová es mi pastor; nada me faltará.",
+        "NTV": "El Señor es mi pastor; tengo todo lo que necesito.",
+        "NLT": "The Lord is my shepherd; I have all that I need."
+      }
+    },
+    {
+      "bookNumber": 19,
+      "chapter": 23,
+      "verse": 2,
+      "translations": {
+        "RV1960": "En lugares de delicados pastos me hará descansar; junto a aguas de reposo me pastoreará.",
+        "NTV": "Me hace descansar en verdes pastos, me guía a tranquilas aguas.",
+        "NLT": "He lets me rest in green meadows; he leads me beside peaceful streams."
+      }
+    },
+    {
+      "bookNumber": 50,
+      "chapter": 4,
+      "verse": 6,
+      "translations": {
+        "RV1960": "Por nada estéis afanosos, sino sean conocidas vuestras peticiones delante de Dios en toda oración y ruego, con acción de gracias.",
+        "NTV": "No se preocupen por nada; en cambio, oren por todo. Díganle a Dios lo que necesitan y denle gracias por todo lo que él ha hecho.",
+        "NLT": "Don't worry about anything; instead, pray about everything. Tell God what you need, and thank him for all he has done."
+      }
+    },
+    {
+      "bookNumber": 50,
+      "chapter": 4,
+      "verse": 7,
+      "translations": {
+        "RV1960": "Y la paz de Dios, que sobrepasa todo entendimiento, guardará vuestros corazones y vuestros pensamientos en Cristo Jesús.",
+        "NTV": "Entonces experimentarán la paz de Dios, que supera todo lo que podemos entender. La paz de Dios cuidará su corazón y su mente mientras vivan en Cristo Jesús.",
+        "NLT": "Then you will experience God's peace, which exceeds anything we can understand. His peace will guard your hearts and minds as you live in Christ Jesus."
+      }
+    },
+    {
+      "bookNumber": 45,
+      "chapter": 8,
+      "verse": 28,
+      "translations": {
+        "RV1960": "Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien, esto es, a los que conforme a su propósito son llamados.",
+        "NTV": "Y sabemos que Dios hace que todas las cosas cooperen para el bien de quienes lo aman y son llamados según el propósito que él tiene para ellos.",
+        "NLT": "And we know that God causes everything to work together for the good of those who love God and are called according to his purpose for them."
+      }
+    },
+    {
+      "bookNumber": 20,
+      "chapter": 3,
+      "verse": 5,
+      "translations": {
+        "RV1960": "Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.",
+        "NTV": "Confía en el Señor con todo tu corazón; no dependas de tu propio entendimiento.",
+        "NLT": "Trust in the Lord with all your heart; do not depend on your own understanding."
+      }
+    },
+    {
+      "bookNumber": 20,
+      "chapter": 3,
+      "verse": 6,
+      "translations": {
+        "RV1960": "Reconócelo en todos tus caminos, y él endereza tus veredas.",
+        "NTV": "Busca su voluntad en todo lo que hagas, y él te mostrará cuál camino tomar.",
+        "NLT": "Seek his will in all you do, and he will show you which path to take."
+      }
+    },
+    {
+      "bookNumber": 23,
+      "chapter": 41,
+      "verse": 10,
+      "translations": {
+        "RV1960": "No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.",
+        "NTV": "No tengas miedo, porque yo estoy contigo; no te desalientes, porque yo soy tu Dios. Te daré fuerzas y te ayudaré; te sostendré con mi mano derecha victoriosa.",
+        "NLT": "Don't be afraid, for I am with you. Don't be discouraged, for I am your God. I will strengthen you and help you. I will hold you up with my victorious right hand."
+      }
+    },
+    {
+      "bookNumber": 40,
+      "chapter": 11,
+      "verse": 28,
+      "translations": {
+        "RV1960": "Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",
+        "NTV": "Vengan a mí todos los que están cansados y llevan cargas pesadas, y yo les daré descanso.",
+        "NLT": "Then Jesus said, \"Come to me, all of you who are weary and carry heavy burdens, and I will give you rest.\""
+      }
+    },
+    {
+      "bookNumber": 24,
+      "chapter": 29,
+      "verse": 11,
+      "translations": {
+        "RV1960": "Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.",
+        "NTV": "Pues yo sé los planes que tengo para ustedes —dice el Señor—. Son planes para lo bueno y no para lo malo, para darles un futuro y una esperanza.",
+        "NLT": "For I know the plans I have for you,\" says the Lord. \"They are plans for good and not for disaster, to give you a future and a hope."
+      }
+    },
+    {
+      "bookNumber": 6,
+      "chapter": 1,
+      "verse": 9,
+      "translations": {
+        "RV1960": "Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.",
+        "NTV": "Mi mandato es: «Sé fuerte y valiente. No tengas miedo ni te desanimes, porque el Señor tu Dios está contigo dondequiera que vayas».",
+        "NLT": "This is my command—be strong and courageous! Do not be afraid or discouraged. For the Lord your God is with you wherever you go."
+      }
+    },
+    {
+      "bookNumber": 46,
+      "chapter": 13,
+      "verse": 4,
+      "translations": {
+        "RV1960": "El amor es sufrido, es benigno; el amor no tiene envidia, el amor no es jactancioso, no se envanece.",
+        "NTV": "El amor es paciente y bondadoso. El amor no es celoso ni fanfarrón ni orgulloso.",
+        "NLT": "Love is patient and kind. Love is not jealous or boastful or proud."
+      }
+    }
+  ]
+}

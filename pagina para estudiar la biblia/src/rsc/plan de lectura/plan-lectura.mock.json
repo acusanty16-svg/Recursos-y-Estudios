@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "plans": [
+    {
+      "id": "evangelios-21",
+      "titleEs": "Los evangelios en 21 días",
+      "titleEn": "The Gospels in 21 days",
+      "descriptionEs": "Un recorrido por la vida, las palabras y la obra de Jesús.",
+      "descriptionEn": "A journey through the life, words and work of Jesus.",
+      "days": [
+        {
+          "day": 1,
+          "labelEs": "El Verbo se hizo carne",
+          "labelEn": "The Word became flesh",
+          "readings": [
+            { "bookNumber": 43, "chapter": 1 },
+            { "bookNumber": 43, "chapter": 2 }
+          ]
+        },
+        {
+          "day": 2,
+          "labelEs": "El nuevo nacimiento",
+          "labelEn": "The new birth",
+          "readings": [{ "bookNumber": 43, "chapter": 3 }]
+        },
+        {
+          "day": 3,
+          "labelEs": "Agua viva",
+          "labelEn": "Living water",
+          "readings": [{ "bookNumber": 43, "chapter": 4 }]
+        },
+        {
+          "day": 4,
+          "labelEs": "El pan de vida",
+          "labelEn": "The bread of life",
+          "readings": [{ "bookNumber": 43, "chapter": 6 }]
+        },
+        {
+          "day": 5,
+          "labelEs": "La luz del mundo",
+          "labelEn": "The light of the world",
+          "readings": [{ "bookNumber": 43, "chapter": 8 }]
+        },
+        {
+          "day": 6,
+          "labelEs": "El buen pastor",
+          "labelEn": "The good shepherd",
+          "readings": [{ "bookNumber": 43, "chapter": 10 }]
+        },
+        {
+          "day": 7,
+          "labelEs": "La resurrección y la vida",
+          "labelEn": "The resurrection and the life",
+          "readings": [{ "bookNumber": 43, "chapter": 11 }]
+        }
+      ]
+    },
+    {
+      "id": "salmos-proverbios-14",
+      "titleEs": "Salmos y Proverbios en 14 días",
+      "titleEn": "Psalms and Proverbs in 14 days",
+      "descriptionEs": "Dos semanas de oración y sabiduría para el día a día.",
+      "descriptionEn": "Two weeks of prayer and wisdom for everyday life.",
+      "days": [
+        {
+          "day": 1,
+          "labelEs": "El Señor es mi pastor",
+          "labelEn": "The Lord is my shepherd",
+          "readings": [{ "bookNumber": 19, "chapter": 23 }]
+        },
+        {
+          "day": 2,
+          "labelEs": "Confiar en el Señor",
+          "labelEn": "Trusting the Lord",
+          "readings": [{ "bookNumber": 20, "chapter": 3 }]
+        },
+        {
+          "day": 3,
+          "labelEs": "Dios es nuestro refugio",
+          "labelEn": "God is our refuge",
+          "readings": [{ "bookNumber": 19, "chapter": 46 }]
+        },
+        {
+          "day": 4,
+          "labelEs": "La sabiduría llama",
+          "labelEn": "Wisdom calls out",
+          "readings": [{ "bookNumber": 20, "chapter": 8 }]
+        },
+        {
+          "day": 5,
+          "labelEs": "Creados para alabar",
+          "labelEn": "Created to praise",
+          "readings": [{ "bookNumber": 19, "chapter": 100 }]
+        }
+      ]
+    }
+  ]
+}

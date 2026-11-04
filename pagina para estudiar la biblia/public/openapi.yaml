@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Santi's Versicles API
+  version: 1.0.0
+  description: |
+    Contrato de datos de **Santi's Versicles**.
+
+    - Los endpoints de *Scripture* consultan la API pública `bolls.life` (sin API key).
+    - Los endpoints de *Local* leen los JSON que importaste y que fueron validados con Zod
+      antes de guardarse en IndexedDB. La app los sirve como Blob URL para que
+      "Try it out" funcione sin backend.
+  contact:
+    name: Santi's Versicles
+servers:
+  - url: https://bolls.life
+    description: API pública de capítulos (CORS abierto)
+tags:
+  - name: Scripture
+    description: Texto bíblico en RV1960, NTV y NLT
+  - name: Local
+    description: Recursos locales validados con Zod
+paths:
+  /get-chapter/{translation}/{book}/{chapter}/:
+    get:
+      tags:
+        - Scripture
+      summary: Obtener un capítulo completo
+      description: Devuelve la lista de versículos del capítulo en la traducción indicada.
+      operationId: getChapter
+      parameters:
+        - name: translation
+          in: path
+          required: true
+          description: Identificador de la traducción
+          schema:
+            type: string
+            enum: [RV1960, NTV, NLT]
+        - name: book
+          in: path
+          required: true
+          description: Número canónico del libro (1 = Génesis, 66 = Apocalipsis)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 66
+        - name: chapter
+          in: path
+          required: true
+          description: Número de capítulo
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 150
+      responses:
+        '200':
+          description: Capítulo obtenido
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Verse'
+              example:
+                - pk: 1470470
+                  verse: 16
+                  text: Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito…
+        '404':
+          description: Traducción, libro o capítulo inexistente
+  /local/versiculos:
+    get:
+      tags:
+        - Local
+      summary: Versículos importados
+      description: JSON validado con `versiculosFileSchema`.
+      operationId: getLocalVerses
+      servers:
+        - url: https://local.santis
+      responses:
+        '200':
+          description: Archivo de versículos validado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersiculosFile'
+  /local/planes:
+    get:
+      tags:
+        - Local
+      summary: Planes de lectura importados
+      description: JSON validado con `readingPlansFileSchema`.
+      operationId: getLocalPlans
+      servers:
+        - url: https://local.santis
+      responses:
+        '200':
+          description: Archivo de planes validado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingPlansFile'
+  /local/recordatorios:
+    get:
+      tags:
+        - Local
+      summary: Recordatorios importados
+      description: JSON validado con `remindersFileSchema`.
+      operationId: getLocalReminders
+      servers:
+        - url: https://local.santis
+      responses:
+        '200':
+          description: Archivo de recordatorios validado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersFile'
+components:
+  schemas:
+    Verse:
+      type: object
+      required: [verse, text]
+      properties:
+        pk:
+          type: integer
+          description: Clave interna del proveedor
+        verse:
+          type: integer
+          minimum: 1
+        text:
+          type: string
+    TranslationMap:
+      type: object
+      description: Al menos una traducción presente
+      properties:
+        RV1960:
+          type: string
+        NTV:
+          type: string
+        NLT:
+          type: string
+      minProperties: 1
+    VerseEntry:
+      type: object
+      required: [bookNumber, chapter, verse, translations]
+      properties:
+        bookNumber:
+          type: integer
+          minimum: 1
+          maximum: 66
+        chapter:
+          type: integer
+          minimum: 1
+          maximum: 150
+        verse:
+          type: integer
+          minimum: 1
+          maximum: 200
+        translations:
+          $ref: '#/components/schemas/TranslationMap'
+    VersiculosFile:
+      type: object
+      required: [version, generatedAt, verses]
+      properties:
+        version:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        verses:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerseEntry'
+    Reading:
+      type: object
+      required: [bookNumber, chapter]
+      properties:
+        bookNumber:
+          type: integer
+          minimum: 1
+          maximum: 66
+        chapter:
+          type: integer
+          minimum: 1
+          maximum: 150
+    PlanDay:
+      type: object
+      required: [day, labelEs, labelEn, readings]
+      properties:
+        day:
+          type: integer
+          minimum: 1
+          maximum: 365
+        labelEs:
+          type: string
+        labelEn:
+          type: string
+        readings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reading'
+    ReadingPlan:
+      type: object
+      required: [id, titleEs, titleEn, descriptionEs, descriptionEn, days]
+      properties:
+        id:
+          type: string
+        titleEs:
+          type: string
+        titleEn:
+          type: string
+        descriptionEs:
+          type: string
+        descriptionEn:
+          type: string
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDay'
+    ReadingPlansFile:
+      type: object
+      required: [version, plans]
+      properties:
+        version:
+          type: string
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReadingPlan'
+    Reminder:
+      type: object
+      required: [id, titleEs, titleEn, messageEs, messageEn, time, days, enabled]
+      properties:
+        id:
+          type: string
+        titleEs:
+          type: string
+        titleEn:
+          type: string
+        messageEs:
+          type: string
+        messageEn:
+          type: string
+        time:
+          type: string
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+        days:
+          type: array
+          items:
+            type: string
+            enum: [mon, tue, wed, thu, fri, sat, sun]
+        enabled:
+          type: boolean
+    RemindersFile:
+      type: object
+      required: [version, reminders]
+      properties:
+        version:
+          type: string
+        reminders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reminder'
