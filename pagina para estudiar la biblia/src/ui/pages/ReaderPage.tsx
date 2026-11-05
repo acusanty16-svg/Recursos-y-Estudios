@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { formatChapterLabel } from '@model/reference';
 import type { Chapter, HighlightColor, Note, TranslationId, VerseReference } from '@model/types';
 import {
@@ -19,6 +20,7 @@ import {
   sanitizeTags,
   toggleBookmark,
   toggleHighlight,
+  toggleMemorizedVerse,
   updateNote,
 } from '@controller/notes.controller';
 import { useI18n } from '@ui/hooks/useI18n';
@@ -41,6 +43,8 @@ interface DialogState {
 export function ReaderPage() {
   const state = useAppStore();
   const { t, language } = useI18n();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
 
   const [comparisonChapter, setComparisonChapter] = useState<Chapter | null>(null);
   const [comparisonError, setComparisonError] = useState<string | null>(null);
@@ -105,6 +109,13 @@ export function ReaderPage() {
   }, []);
 
   useEffect(() => {
+    const target = (routerLocation.state as { verse?: number } | null)?.verse;
+    if (typeof target !== 'number') return;
+    setPendingVerse(target);
+    navigate(routerLocation.pathname, { replace: true, state: null });
+  }, [routerLocation, navigate]);
+
+  useEffect(() => {
     if (pendingVerse === null || !chapter) return;
 
     const timer = window.setTimeout(() => {
@@ -155,6 +166,13 @@ export function ReaderPage() {
   const handleToggleBookmark = useCallback(
     (reference: VerseReference): void => {
       void toggleBookmark(reference, activeTranslation);
+    },
+    [activeTranslation],
+  );
+
+  const handleToggleMemorized = useCallback(
+    (reference: VerseReference, text: string): void => {
+      void toggleMemorizedVerse(reference, activeTranslation, text);
     },
     [activeTranslation],
   );
@@ -262,8 +280,10 @@ export function ReaderPage() {
             notes={state.notes}
             highlights={state.highlights}
             bookmarks={state.bookmarks}
+            memorizedVerses={state.memorizedVerses}
             onCopy={handleCopy}
             onToggleBookmark={handleToggleBookmark}
+            onToggleMemorized={handleToggleMemorized}
             onHighlight={handleHighlight}
             onAddNote={openCreate}
             onEditNote={openEdit}

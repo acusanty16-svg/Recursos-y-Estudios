@@ -10,6 +10,7 @@ import {
   getAllEvents,
   getAllHighlights,
   getAllImportedMeta,
+  getAllMemorizedVerses,
   getAllNotes,
   putEvent,
 } from './idb';
@@ -44,10 +45,11 @@ export async function bootstrapApp(): Promise<void> {
   }));
 
   try {
-    const [notes, highlights, bookmarks, events, importedMeta] = await Promise.all([
+    const [notes, highlights, bookmarks, memorizedVerses, events, importedMeta] = await Promise.all([
       getAllNotes(),
       getAllHighlights(),
       getAllBookmarks(),
+      getAllMemorizedVerses(),
       getAllEvents(),
       getAllImportedMeta(),
     ]);
@@ -59,6 +61,7 @@ export async function bootstrapApp(): Promise<void> {
       notes,
       highlights,
       bookmarks,
+      memorizedVerses,
       events,
       importedMeta,
       streak,

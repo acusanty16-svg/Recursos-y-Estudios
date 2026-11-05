@@ -40,6 +40,10 @@ await page.waitForTimeout(300);
 await page.getByRole('button', { name: 'Guardar', exact: true }).first().click();
 await page.waitForTimeout(300);
 
+// Memorizar
+await page.getByRole('button', { name: 'Marcar para memorizar' }).first().click();
+await page.waitForTimeout(300);
+
 // Comparación NTV
 await page.selectOption('#compare-select', 'NTV');
 await page.waitForTimeout(3500);
@@ -69,6 +73,23 @@ await page.screenshot({ path: `${OUT}/reader-with-note.png`, fullPage: false });
 await page.goto(`${BASE}/notas`, { waitUntil: 'networkidle' });
 check('nota aparece en Mis notas', await page.getByText('Señor, ayúdame a habitar').first().isVisible());
 check('etiqueta visible', await page.locator('ul li').filter({ hasText: '#fe' }).first().isVisible());
+
+// Memorizar: cita + texto completo
+await page.getByRole('tab', { name: /Memorizar/ }).click();
+await page.waitForTimeout(300);
+check('cita del versículo memorizado', await page.getByText('Juan 1:1 (RV1960)').first().isVisible());
+check(
+  'texto completo del versículo memorizado',
+  (await page.locator('body').innerText()).includes('En el principio era el Verbo'),
+);
+await page.screenshot({ path: `${OUT}/notes-memorize.png`, fullPage: true });
+
+// Quitar de memorizar
+await page.getByRole('button', { name: 'Quitar de memorizar' }).first().click();
+await page.waitForTimeout(300);
+check('estado vacío de memorizar', await page.getByText('No hay versículos para memorizar.').first().isVisible());
+await page.getByRole('tab', { name: /Notas/ }).click();
+await page.waitForTimeout(200);
 
 // Tema claro
 const themeButton = page.getByRole('button', { name: /Tema/ }).first();

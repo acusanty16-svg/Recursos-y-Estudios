@@ -85,6 +85,15 @@ export interface Bookmark {
   readonly createdAt: number;
 }
 
+/** Versículo apartado para memorizar, con su texto para repasarlo sin conexión. */
+export interface MemorizedVerse {
+  readonly id: string;
+  readonly reference: VerseReference;
+  readonly translationId: TranslationId;
+  readonly text: string;
+  readonly createdAt: number;
+}
+
 export interface ReadingEvent {
   /** Clave determinista: día + libro + capítulo + traducción. Evita duplicados. */
   readonly id: string;

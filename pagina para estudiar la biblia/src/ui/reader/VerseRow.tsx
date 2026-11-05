@@ -1,8 +1,8 @@
-import type { Bookmark, Highlight, HighlightColor, Note, TranslationId, Verse } from '@model/types';
+import type { Bookmark, Highlight, HighlightColor, MemorizedVerse, Note, TranslationId, Verse } from '@model/types';
 import type { VerseReference } from '@model/types';
 import { formatCitation } from '@model/reference';
 import { useI18n } from '@ui/hooks/useI18n';
-import { BookmarkIcon, CopyIcon, HighlighterIcon, NoteIcon } from '@ui/components/icons';
+import { BookmarkIcon, CopyIcon, HighlighterIcon, MemorizeIcon, NoteIcon } from '@ui/components/icons';
 
 const HIGHLIGHT_CLASSES: Record<HighlightColor, string> = {
   gold: 'sv-hl-gold',
@@ -28,10 +28,12 @@ interface VerseRowProps {
   readonly note: Note | undefined;
   readonly highlight: Highlight | undefined;
   readonly bookmark: Bookmark | undefined;
+  readonly memorized: MemorizedVerse | undefined;
   readonly comparisonText: string | undefined;
   readonly comparisonTranslation: TranslationId | null;
   readonly onCopy: () => void;
   readonly onToggleBookmark: () => void;
+  readonly onToggleMemorized: () => void;
   readonly onHighlight: (color: HighlightColor) => void;
   readonly onAddNote: () => void;
   readonly onEditNote: (note: Note) => void;
@@ -45,10 +47,12 @@ export function VerseRow({
   note,
   highlight,
   bookmark,
+  memorized,
   comparisonText,
   comparisonTranslation,
   onCopy,
   onToggleBookmark,
+  onToggleMemorized,
   onHighlight,
   onAddNote,
   onEditNote,
@@ -123,6 +127,19 @@ export function VerseRow({
           onClick={onToggleBookmark}
         >
           <BookmarkIcon size={15} fill={bookmark ? 'currentColor' : 'none'} />
+        </button>
+
+        <button
+          type="button"
+          className={`inline-flex size-10 items-center justify-center rounded-md transition-colors hover:bg-navy-900/5 dark:hover:bg-parchment-100/10 ${
+            memorized ? 'text-ember-600 dark:text-ember-300' : 'text-navy-500 dark:text-parchment-300/70'
+          }`}
+          aria-label={memorized ? t('reader.unmemorize') : t('reader.memorize')}
+          aria-pressed={memorized !== undefined}
+          title={memorized ? t('reader.unmemorize') : t('reader.memorize')}
+          onClick={onToggleMemorized}
+        >
+          <MemorizeIcon size={15} />
         </button>
 
         <details className="relative">

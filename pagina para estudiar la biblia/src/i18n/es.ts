@@ -100,6 +100,10 @@ export const es = {
   'reader.deletedNote': 'Nota eliminada',
   'reader.bookmarked': 'Añadido a guardados',
   'reader.unbookmarked': 'Quitado de guardados',
+  'reader.memorize': 'Marcar para memorizar',
+  'reader.unmemorize': 'Quitar de memorizar',
+  'reader.memorized': 'Añadido para memorizar',
+  'reader.unmemorized': 'Quitado de memorizar',
 
   'notes.title': 'Mis notas',
   'notes.subtitle': 'Lo que la Palabra te ha dicho, en un solo lugar.',
@@ -118,8 +122,12 @@ export const es = {
   'notes.tabNotes': 'Notas',
   'notes.tabHighlights': 'Subrayados',
   'notes.tabBookmarks': 'Guardados',
+  'notes.tabMemorize': 'Memorizar',
   'notes.noHighlights': 'No hay subrayados.',
   'notes.noBookmarks': 'No hay versículos guardados.',
+  'notes.noMemorized': 'No hay versículos para memorizar.',
+  'notes.memorizeHint':
+    'Marca versículos con el icono de la lámpara en el lector. Aquí aparecerán con su cita y su texto completo para repasarlos.',
   'notes.openInReader': 'Abrir en el lector',
 
   'import.title': 'Importar datos',
@@ -172,7 +180,7 @@ export const es = {
   'settings.cacheCleared': 'Caché de capítulos borrada',
   'settings.clearData': 'Borrar todos mis datos',
   'settings.clearConfirm':
-    'Se borrarán notas, subrayados, guardados y rachas de este navegador. ¿Continuar?',
+    'Se borrarán notas, subrayados, guardados, versículos para memorizar y rachas de este navegador. ¿Continuar?',
   'settings.dataCleared': 'Datos borrados',
   'settings.fileAccess': 'Acceso a archivos',
   'settings.fileSupport': 'File System Access API',

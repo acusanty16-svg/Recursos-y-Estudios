@@ -128,6 +128,13 @@ export const HighlighterIcon = (props: IconProps) => (
   </Base>
 );
 
+export const MemorizeIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="M9 18h6M10 21h4" />
+    <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" />
+  </Base>
+);
+
 export const CheckIcon = (props: IconProps) => (
   <Base {...props}>
     <path d="m20 6-11 11-5-5" />

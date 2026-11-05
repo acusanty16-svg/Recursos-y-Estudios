@@ -6,6 +6,7 @@ import type {
   Highlight,
   ImportKind,
   ImportedFileMeta,
+  MemorizedVerse,
   Note,
   ReadingEvent,
 } from '../model/types';
@@ -26,6 +27,7 @@ interface SantiDB extends DBSchema {
   notes: { key: string; value: Note; indexes: { 'by-ref': string } };
   highlights: { key: string; value: Highlight; indexes: { 'by-ref': string } };
   bookmarks: { key: string; value: Bookmark; indexes: { 'by-ref': string } };
+  memorized: { key: string; value: MemorizedVerse; indexes: { 'by-ref': string } };
   events: { key: string; value: ReadingEvent; indexes: { 'by-day': string } };
   handles: { key: ImportKind; value: HandleRecord };
   meta: { key: string; value: MetaRecord };
@@ -55,6 +57,10 @@ export function getDb(): Promise<AppDatabase> {
       }
       if (!db.objectStoreNames.contains('bookmarks')) {
         const store = db.createObjectStore('bookmarks', { keyPath: 'id' });
+        store.createIndex('by-ref', ['reference.bookNumber', 'reference.chapter', 'reference.verse']);
+      }
+      if (!db.objectStoreNames.contains('memorized')) {
+        const store = db.createObjectStore('memorized', { keyPath: 'id' });
         store.createIndex('by-ref', ['reference.bookNumber', 'reference.chapter', 'reference.verse']);
       }
       if (!db.objectStoreNames.contains('events')) {
@@ -146,6 +152,23 @@ export async function putBookmark(bookmark: Bookmark): Promise<void> {
 export async function deleteBookmark(id: string): Promise<void> {
   const db = await getDb();
   await db.delete('bookmarks', id);
+}
+
+/* ------------------------------- Memorizar ------------------------------- */
+
+export async function getAllMemorizedVerses(): Promise<readonly MemorizedVerse[]> {
+  const db = await getDb();
+  return db.getAll('memorized');
+}
+
+export async function putMemorizedVerse(verse: MemorizedVerse): Promise<void> {
+  const db = await getDb();
+  await db.put('memorized', verse);
+}
+
+export async function deleteMemorizedVerse(id: string): Promise<void> {
+  const db = await getDb();
+  await db.delete('memorized', id);
 }
 
 /* --------------------------- Eventos de lectura -------------------------- */
@@ -240,6 +263,7 @@ export async function clearAllUserData(): Promise<void> {
     db.clear('notes'),
     db.clear('highlights'),
     db.clear('bookmarks'),
+    db.clear('memorized'),
     db.clear('events'),
     db.clear('handles'),
     db.clear('meta'),

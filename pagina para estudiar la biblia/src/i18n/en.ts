@@ -102,6 +102,10 @@ export const en: Dictionary = {
   'reader.deletedNote': 'Note deleted',
   'reader.bookmarked': 'Added to saved',
   'reader.unbookmarked': 'Removed from saved',
+  'reader.memorize': 'Mark to memorize',
+  'reader.unmemorize': 'Remove from memorize',
+  'reader.memorized': 'Added to memorize',
+  'reader.unmemorized': 'Removed from memorize',
 
   'notes.title': 'My notes',
   'notes.subtitle': 'What the Word has told you, in one place.',
@@ -120,8 +124,12 @@ export const en: Dictionary = {
   'notes.tabNotes': 'Notes',
   'notes.tabHighlights': 'Highlights',
   'notes.tabBookmarks': 'Saved',
+  'notes.tabMemorize': 'Memorize',
   'notes.noHighlights': 'No highlights.',
   'notes.noBookmarks': 'No saved verses.',
+  'notes.noMemorized': 'No verses to memorize.',
+  'notes.memorizeHint':
+    'Mark verses with the lamp icon in the reader. They will appear here with their citation and full text so you can review them.',
   'notes.openInReader': 'Open in reader',
 
   'import.title': 'Import data',
@@ -174,7 +182,7 @@ export const en: Dictionary = {
   'settings.cacheCleared': 'Chapter cache cleared',
   'settings.clearData': 'Erase all my data',
   'settings.clearConfirm':
-    'Notes, highlights, saved verses and streaks will be erased from this browser. Continue?',
+    'Notes, highlights, saved verses, verses to memorize and streaks will be erased from this browser. Continue?',
   'settings.dataCleared': 'Data erased',
   'settings.fileAccess': 'File access',
   'settings.fileSupport': 'File System Access API',

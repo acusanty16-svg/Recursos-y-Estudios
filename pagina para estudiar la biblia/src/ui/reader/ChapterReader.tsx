@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import type { Bookmark, Chapter, Highlight, Note, TranslationId } from '@model/types';
+import type { Bookmark, Chapter, Highlight, MemorizedVerse, Note, TranslationId } from '@model/types';
 import { getBookByNumber } from '@model/canon';
 import { useI18n } from '@ui/hooks/useI18n';
 import { VerseRow } from './VerseRow';
@@ -12,8 +12,13 @@ interface ChapterReaderProps {
   readonly notes: readonly Note[];
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
+  readonly memorizedVerses: readonly MemorizedVerse[];
   readonly onCopy: (reference: { bookNumber: number; chapter: number; verse: number }, text: string) => void;
   readonly onToggleBookmark: (reference: { bookNumber: number; chapter: number; verse: number }) => void;
+  readonly onToggleMemorized: (
+    reference: { bookNumber: number; chapter: number; verse: number },
+    text: string,
+  ) => void;
   readonly onHighlight: (
     reference: { bookNumber: number; chapter: number; verse: number },
     color: 'gold' | 'sage' | 'sky' | 'rose',
@@ -30,8 +35,10 @@ export const ChapterReader = memo(function ChapterReader({
   notes,
   highlights,
   bookmarks,
+  memorizedVerses,
   onCopy,
   onToggleBookmark,
+  onToggleMemorized,
   onHighlight,
   onAddNote,
   onEditNote,
@@ -85,6 +92,19 @@ export const ChapterReader = memo(function ChapterReader({
     return map;
   }, [bookmarks, chapter.bookNumber, chapter.chapter]);
 
+  const memorizedByVerse = useMemo(() => {
+    const map = new Map<number, MemorizedVerse>();
+    for (const item of memorizedVerses) {
+      if (
+        item.reference.bookNumber === chapter.bookNumber &&
+        item.reference.chapter === chapter.chapter
+      ) {
+        map.set(item.reference.verse, item);
+      }
+    }
+    return map;
+  }, [memorizedVerses, chapter.bookNumber, chapter.chapter]);
+
   return (
     <article aria-labelledby="chapter-title">
       <header className="mb-6 border-b border-navy-900/10 pb-5 dark:border-parchment-100/10">
@@ -134,10 +154,12 @@ export const ChapterReader = memo(function ChapterReader({
               note={noteByVerse.get(verse.number)}
               highlight={highlightByVerse.get(verse.number)}
               bookmark={bookmarkByVerse.get(verse.number)}
+              memorized={memorizedByVerse.get(verse.number)}
               comparisonText={comparisonByVerse.get(verse.number)}
               comparisonTranslation={comparisonTranslation}
               onCopy={() => onCopy(reference, verse.text)}
               onToggleBookmark={() => onToggleBookmark(reference)}
+              onToggleMemorized={() => onToggleMemorized(reference, verse.text)}
               onHighlight={(color) => onHighlight(reference, color)}
               onAddNote={() => onAddNote(reference)}
               onEditNote={onEditNote}

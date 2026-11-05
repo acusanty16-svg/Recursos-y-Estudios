@@ -60,7 +60,7 @@ export const STORAGE_KEYS = {
 
 /** Nombre y versión de la base IndexedDB. */
 export const DB_NAME = 'santis-versicles';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 /** Límites de dominio. */
 export const MAX_NOTE_LENGTH = 5000;

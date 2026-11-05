@@ -2,18 +2,33 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@model/constants';
 import { formatCitation, formatReference } from '@model/reference';
-import type { Note } from '@model/types';
+import type { Note, VerseReference } from '@model/types';
 import { goToChapter } from '@controller/app.controller';
-import { exportMarkdown, removeNote, sanitizeTags, updateNote } from '@controller/notes.controller';
+import {
+  exportMarkdown,
+  removeMemorizedVerse,
+  removeNote,
+  sanitizeTags,
+  updateNote,
+} from '@controller/notes.controller';
 import { useAppStore } from '@controller/store';
 import { useI18n } from '@ui/hooks/useI18n';
 import { PageHeader } from '@ui/components/PageHeader';
 import { EmptyState } from '@ui/components/EmptyState';
 import { NoteDialog } from '@ui/reader/NoteDialog';
 import { NoteEditor } from '@ui/reader/NoteEditor';
-import { BookmarkIcon, DownloadIcon, HighlighterIcon, NoteIcon, SearchIcon, TrashIcon } from '@ui/components/icons';
+import {
+  BookIcon,
+  BookmarkIcon,
+  DownloadIcon,
+  HighlighterIcon,
+  MemorizeIcon,
+  NoteIcon,
+  SearchIcon,
+  TrashIcon,
+} from '@ui/components/icons';
 
-type Tab = 'notes' | 'highlights' | 'bookmarks';
+type Tab = 'notes' | 'highlights' | 'bookmarks' | 'memorize';
 
 export function NotesPage() {
   const state = useAppStore();
@@ -51,9 +66,23 @@ export function NotesPage() {
       });
   }, [state.notes, query, tagFilter, language]);
 
+  const sortedMemorized = useMemo(
+    () =>
+      [...state.memorizedVerses].sort((a, b) => {
+        if (a.reference.bookNumber !== b.reference.bookNumber) return a.reference.bookNumber - b.reference.bookNumber;
+        if (a.reference.chapter !== b.reference.chapter) return a.reference.chapter - b.reference.chapter;
+        return a.reference.verse - b.reference.verse;
+      }),
+    [state.memorizedVerses],
+  );
+
+  const openReference = (reference: VerseReference): void => {
+    void goToChapter(reference.bookNumber, reference.chapter);
+    navigate(ROUTES.reader, { state: { verse: reference.verse } });
+  };
+
   const openVerse = (note: Note): void => {
-    void goToChapter(note.reference.bookNumber, note.reference.chapter);
-    navigate(ROUTES.reader);
+    openReference(note.reference);
   };
 
   const handleDelete = (id: string): void => {
@@ -70,6 +99,7 @@ export function NotesPage() {
     { id: 'notes', label: t('notes.tabNotes'), count: state.notes.length },
     { id: 'highlights', label: t('notes.tabHighlights'), count: state.highlights.length },
     { id: 'bookmarks', label: t('notes.tabBookmarks'), count: state.bookmarks.length },
+    { id: 'memorize', label: t('notes.tabMemorize'), count: state.memorizedVerses.length },
   ];
 
   return (
@@ -255,6 +285,64 @@ export function NotesPage() {
                   {formatCitation(bookmark.reference, bookmark.translationId, language)}
                 </button>
                 <BookmarkIcon size={16} className="shrink-0 text-ember-500" fill="currentColor" />
+              </li>
+            ))}
+          </ul>
+        )
+      ) : null}
+
+      {tab === 'memorize' ? (
+        sortedMemorized.length === 0 ? (
+          <EmptyState
+            icon={<MemorizeIcon size={30} />}
+            title={t('notes.noMemorized')}
+            body={t('notes.memorizeHint')}
+            action={
+              <button type="button" className="sv-btn sv-btn-primary" onClick={() => navigate(ROUTES.reader)}>
+                {t('dashboard.startReading')}
+              </button>
+            }
+          />
+        ) : (
+          <ul className="grid items-stretch gap-4 lg:grid-cols-2">
+            {sortedMemorized.map((item) => (
+              <li key={item.id} className="sv-card flex flex-col p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <button
+                      type="button"
+                      className="text-left text-sm font-semibold text-ember-700 hover:underline dark:text-ember-300"
+                      onClick={() => openReference(item.reference)}
+                    >
+                      {formatCitation(item.reference, item.translationId, language)}
+                    </button>
+                    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-navy-400 dark:text-parchment-300/60">
+                      {item.translationId}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="sv-btn sv-btn-ghost min-h-9 shrink-0 px-2 text-rose-500"
+                    aria-label={t('reader.unmemorize')}
+                    title={t('reader.unmemorize')}
+                    onClick={() => void removeMemorizedVerse(item.id)}
+                  >
+                    <TrashIcon size={14} />
+                  </button>
+                </div>
+
+                <p className="sv-scripture mt-3 flex-1 text-navy-900 dark:text-parchment-50">
+                  {item.text}
+                </p>
+
+                <button
+                  type="button"
+                  className="sv-btn sv-btn-ghost mt-3 min-h-9 self-start px-2 text-xs"
+                  onClick={() => openReference(item.reference)}
+                >
+                  <BookIcon size={14} />
+                  {t('notes.openInReader')}
+                </button>
               </li>
             ))}
           </ul>

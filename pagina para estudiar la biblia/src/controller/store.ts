@@ -5,6 +5,7 @@ import type {
   Chapter,
   Highlight,
   ImportedFileMeta,
+  MemorizedVerse,
   Note,
   Preferences,
   ReadingEvent,
@@ -33,6 +34,7 @@ export interface AppState {
   readonly notes: readonly Note[];
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
+  readonly memorizedVerses: readonly MemorizedVerse[];
   readonly events: readonly ReadingEvent[];
   readonly importedMeta: readonly ImportedFileMeta[];
   readonly streak: StreakState;
@@ -61,6 +63,7 @@ const INITIAL_STATE: AppState = {
   notes: [],
   highlights: [],
   bookmarks: [],
+  memorizedVerses: [],
   events: [],
   importedMeta: [],
   streak: INITIAL_STREAK,

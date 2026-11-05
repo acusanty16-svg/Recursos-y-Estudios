@@ -4,13 +4,23 @@ import type {
   Bookmark,
   Highlight,
   HighlightColor,
+  MemorizedVerse,
   Note,
   TranslationId,
   VerseReference,
 } from '../model/types';
 import { getBookByNumber } from '../model/canon';
 import { translate } from '../i18n';
-import { deleteBookmark, deleteHighlight, deleteNote, putBookmark, putHighlight, putNote } from './idb';
+import {
+  deleteBookmark,
+  deleteHighlight,
+  deleteMemorizedVerse,
+  deleteNote,
+  putBookmark,
+  putHighlight,
+  putMemorizedVerse,
+  putNote,
+} from './idb';
 import { appStore, showToast } from './store';
 
 function newId(): string {
@@ -67,6 +77,18 @@ export function findBookmarkForVerse(
       bookmark.reference.bookNumber === reference.bookNumber &&
       bookmark.reference.chapter === reference.chapter &&
       bookmark.reference.verse === reference.verse,
+  );
+}
+
+export function findMemorizedForVerse(
+  memorized: readonly MemorizedVerse[],
+  reference: VerseReference,
+): MemorizedVerse | undefined {
+  return memorized.find(
+    (item) =>
+      item.reference.bookNumber === reference.bookNumber &&
+      item.reference.chapter === reference.chapter &&
+      item.reference.verse === reference.verse,
   );
 }
 
@@ -216,6 +238,62 @@ export async function toggleBookmark(reference: VerseReference, translationId: T
   showToast(translate(preferences.uiLanguage, 'reader.bookmarked'), 'success');
 }
 
+export async function toggleMemorizedVerse(
+  reference: VerseReference,
+  translationId: TranslationId,
+  text: string,
+): Promise<void> {
+  const { memorizedVerses, preferences } = appStore.getState();
+  const existing = findMemorizedForVerse(memorizedVerses, reference);
+
+  if (existing) {
+    try {
+      await deleteMemorizedVerse(existing.id);
+    } catch {
+      // Ignorado: el estado en memoria manda.
+    }
+    appStore.setState((state) => ({
+      ...state,
+      memorizedVerses: state.memorizedVerses.filter((item) => item.id !== existing.id),
+    }));
+    showToast(translate(preferences.uiLanguage, 'reader.unmemorized'), 'info');
+    return;
+  }
+
+  const memorized: MemorizedVerse = {
+    id: newId(),
+    reference,
+    translationId,
+    text: text.trim(),
+    createdAt: Date.now(),
+  };
+
+  try {
+    await putMemorizedVerse(memorized);
+  } catch {
+    // Ignorado.
+  }
+  appStore.setState((state) => ({
+    ...state,
+    memorizedVerses: [...state.memorizedVerses, memorized],
+  }));
+  showToast(translate(preferences.uiLanguage, 'reader.memorized'), 'success');
+}
+
+export async function removeMemorizedVerse(id: string): Promise<void> {
+  const { preferences } = appStore.getState();
+  try {
+    await deleteMemorizedVerse(id);
+  } catch {
+    // La UI no debe bloquearse por un fallo de IndexedDB.
+  }
+  appStore.setState((state) => ({
+    ...state,
+    memorizedVerses: state.memorizedVerses.filter((item) => item.id !== id),
+  }));
+  showToast(translate(preferences.uiLanguage, 'reader.unmemorized'), 'info');
+}
+
 export async function copyVerse(
   reference: VerseReference,
   translationId: TranslationId,
@@ -231,9 +309,9 @@ export async function copyVerse(
   }
 }
 
-/** Exporta notas, subrayados y guardados a Markdown y dispara la descarga. */
+/** Exporta notas, subrayados, guardados y versículos para memorizar a Markdown. */
 export function exportMarkdown(): void {
-  const { notes, highlights, bookmarks, preferences } = appStore.getState();
+  const { notes, highlights, bookmarks, memorizedVerses, preferences } = appStore.getState();
   const language = preferences.uiLanguage;
   const lines: string[] = [
     `# ${translate(language, 'notes.title')} — Santi's Versicles`,
@@ -273,6 +351,23 @@ export function exportMarkdown(): void {
   }
   if (bookmarks.length === 0) lines.push(`_${translate(language, 'notes.noBookmarks')}_`);
   lines.push('');
+
+  const sortedMemorized = [...memorizedVerses].sort((a, b) => {
+    if (a.reference.bookNumber !== b.reference.bookNumber) return a.reference.bookNumber - b.reference.bookNumber;
+    if (a.reference.chapter !== b.reference.chapter) return a.reference.chapter - b.reference.chapter;
+    return a.reference.verse - b.reference.verse;
+  });
+
+  lines.push(`## ${translate(language, 'notes.tabMemorize')}`, '');
+  if (sortedMemorized.length === 0) {
+    lines.push(`_${translate(language, 'notes.noMemorized')}_`, '');
+  }
+  for (const item of sortedMemorized) {
+    const book = getBookByNumber(item.reference.bookNumber);
+    lines.push(`### ${formatCitation(item.reference, item.translationId, language)}`);
+    if (book) lines.push(`*${book.nameEs} ${item.reference.chapter}*`);
+    lines.push('', item.text, '');
+  }
 
   const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
