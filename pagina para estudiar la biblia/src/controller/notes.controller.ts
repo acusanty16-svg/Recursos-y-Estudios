@@ -21,6 +21,7 @@ import {
   putMemorizedVerse,
   putNote,
 } from './idb';
+import { notifyLocalChange, recordDeletion } from './sync-events';
 import { appStore, showToast } from './store';
 
 function newId(): string {
@@ -120,6 +121,7 @@ export async function createNote(input: {
 
   appStore.setState((state) => ({ ...state, notes: [...state.notes, note] }));
   showToast(translate(appStore.getState().preferences.uiLanguage, 'reader.savedNote'), 'success');
+  notifyLocalChange();
   return note;
 }
 
@@ -155,6 +157,7 @@ export async function updateNote(
     notes: state.notes.map((note) => (note.id === id ? updated : note)),
   }));
   showToast(translate(appStore.getState().preferences.uiLanguage, 'reader.savedNote'), 'success');
+  notifyLocalChange();
 }
 
 export async function removeNote(id: string): Promise<void> {
@@ -164,6 +167,7 @@ export async function removeNote(id: string): Promise<void> {
     // La UI no debe bloquearse por un fallo de IndexedDB.
   }
   appStore.setState((state) => ({ ...state, notes: state.notes.filter((note) => note.id !== id) }));
+  recordDeletion('notes', id);
   showToast(translate(appStore.getState().preferences.uiLanguage, 'reader.deletedNote'), 'info');
 }
 
@@ -185,6 +189,7 @@ export async function toggleHighlight(
       ...state,
       highlights: state.highlights.filter((highlight) => highlight.id !== existing.id),
     }));
+    recordDeletion('highlights', existing.id);
     return;
   }
 
@@ -202,6 +207,7 @@ export async function toggleHighlight(
     // Ignorado.
   }
   appStore.setState((state) => ({ ...state, highlights: [...state.highlights, highlight] }));
+  notifyLocalChange();
 }
 
 export async function toggleBookmark(reference: VerseReference, translationId: TranslationId): Promise<void> {
@@ -218,6 +224,7 @@ export async function toggleBookmark(reference: VerseReference, translationId: T
       ...state,
       bookmarks: state.bookmarks.filter((bookmark) => bookmark.id !== existing.id),
     }));
+    recordDeletion('bookmarks', existing.id);
     showToast(translate(preferences.uiLanguage, 'reader.unbookmarked'), 'info');
     return;
   }
@@ -236,6 +243,7 @@ export async function toggleBookmark(reference: VerseReference, translationId: T
   }
   appStore.setState((state) => ({ ...state, bookmarks: [...state.bookmarks, bookmark] }));
   showToast(translate(preferences.uiLanguage, 'reader.bookmarked'), 'success');
+  notifyLocalChange();
 }
 
 export async function toggleMemorizedVerse(
@@ -256,6 +264,7 @@ export async function toggleMemorizedVerse(
       ...state,
       memorizedVerses: state.memorizedVerses.filter((item) => item.id !== existing.id),
     }));
+    recordDeletion('memorized', existing.id);
     showToast(translate(preferences.uiLanguage, 'reader.unmemorized'), 'info');
     return;
   }
@@ -278,6 +287,7 @@ export async function toggleMemorizedVerse(
     memorizedVerses: [...state.memorizedVerses, memorized],
   }));
   showToast(translate(preferences.uiLanguage, 'reader.memorized'), 'success');
+  notifyLocalChange();
 }
 
 export async function removeMemorizedVerse(id: string): Promise<void> {
@@ -291,6 +301,7 @@ export async function removeMemorizedVerse(id: string): Promise<void> {
     ...state,
     memorizedVerses: state.memorizedVerses.filter((item) => item.id !== id),
   }));
+  recordDeletion('memorized', id);
   showToast(translate(preferences.uiLanguage, 'reader.unmemorized'), 'info');
 }
 
@@ -309,8 +320,8 @@ export async function copyVerse(
   }
 }
 
-/** Exporta notas, subrayados, guardados y versículos para memorizar a Markdown. */
-export function exportMarkdown(): void {
+/** Genera el Markdown completo; lo usan la descarga local y la exportación a Drive. */
+export function buildMarkdownExport(): string {
   const { notes, highlights, bookmarks, memorizedVerses, preferences } = appStore.getState();
   const language = preferences.uiLanguage;
   const lines: string[] = [
@@ -369,7 +380,13 @@ export function exportMarkdown(): void {
     lines.push('', item.text, '');
   }
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+  return lines.join('\n');
+}
+
+/** Exporta notas, subrayados, guardados y versículos para memorizar a Markdown. */
+export function exportMarkdown(): void {
+  const language = appStore.getState().preferences.uiLanguage;
+  const blob = new Blob([buildMarkdownExport()], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;

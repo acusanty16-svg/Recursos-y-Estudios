@@ -171,6 +171,39 @@ export async function deleteMemorizedVerse(id: string): Promise<void> {
   await db.delete('memorized', id);
 }
 
+/**
+ * Reemplaza las colecciones sincronizadas de una sola vez.
+ * Se usa al aplicar una fusión de Drive para evitar estados intermedios.
+ */
+export async function replaceSyncedData(data: {
+  readonly notes: readonly Note[];
+  readonly highlights: readonly Highlight[];
+  readonly bookmarks: readonly Bookmark[];
+  readonly memorizedVerses: readonly MemorizedVerse[];
+}): Promise<void> {
+  const db = await getDb();
+  const tx = db.transaction(['notes', 'highlights', 'bookmarks', 'memorized'], 'readwrite');
+  const notesStore = tx.objectStore('notes');
+  const highlightsStore = tx.objectStore('highlights');
+  const bookmarksStore = tx.objectStore('bookmarks');
+  const memorizedStore = tx.objectStore('memorized');
+
+  // Todas las peticiones se encolan de forma síncrona: así la transacción
+  // no se cierra entre los clear y los put.
+  await Promise.all([
+    notesStore.clear(),
+    highlightsStore.clear(),
+    bookmarksStore.clear(),
+    memorizedStore.clear(),
+    ...data.notes.map((note) => notesStore.put(note)),
+    ...data.highlights.map((highlight) => highlightsStore.put(highlight)),
+    ...data.bookmarks.map((bookmark) => bookmarksStore.put(bookmark)),
+    ...data.memorizedVerses.map((verse) => memorizedStore.put(verse)),
+  ]);
+
+  await tx.done;
+}
+
 /* --------------------------- Eventos de lectura -------------------------- */
 
 export async function getAllEvents(): Promise<readonly ReadingEvent[]> {

@@ -16,6 +16,7 @@ import {
 } from './idb';
 import { loadPreferences, updatePreferences } from './preferences.controller';
 import { appStore } from './store';
+import { initSync } from './sync.controller';
 
 let loadToken = 0;
 let bootStarted = false;
@@ -67,6 +68,8 @@ export async function bootstrapApp(): Promise<void> {
       streak,
       bootStatus: 'ready',
     }));
+
+    initSync();
 
     // Reanuda la última ubicación persistida, si existe.
     const saved = localStorage.getItem(STORAGE_KEYS.onboarding);

@@ -23,6 +23,30 @@ export interface Toast {
 
 export type NotificationPermissionState = NotificationPermission | 'unsupported';
 
+export type AccountSyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'needs-auth';
+
+export interface AccountState {
+  readonly configured: boolean;
+  readonly status: 'signed-out' | 'connecting' | 'signed-in';
+  readonly email: string | null;
+  readonly name: string | null;
+  readonly picture: string | null;
+  readonly syncStatus: AccountSyncStatus;
+  readonly lastSyncedAt: number | null;
+  readonly error: string | null;
+}
+
+export const INITIAL_ACCOUNT: AccountState = {
+  configured: false,
+  status: 'signed-out',
+  email: null,
+  name: null,
+  picture: null,
+  syncStatus: 'idle',
+  lastSyncedAt: null,
+  error: null,
+};
+
 export interface AppState {
   readonly bootStatus: 'loading' | 'ready';
   readonly preferences: Preferences;
@@ -40,6 +64,7 @@ export interface AppState {
   readonly streak: StreakState;
   readonly notificationPermission: NotificationPermissionState;
   readonly fileSystemSupported: boolean;
+  readonly account: AccountState;
   readonly toast: Toast | null;
 }
 
@@ -69,6 +94,7 @@ const INITIAL_STATE: AppState = {
   streak: INITIAL_STREAK,
   notificationPermission: 'default',
   fileSystemSupported: false,
+  account: INITIAL_ACCOUNT,
   toast: null,
 };
 

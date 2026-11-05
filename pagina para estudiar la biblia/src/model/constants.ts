@@ -56,6 +56,7 @@ export const STORAGE_KEYS = {
   preferences: 'sv.preferences.v1',
   streak: 'sv.streak.v1',
   onboarding: 'sv.onboarding.v1',
+  syncTombstones: 'sv.sync.tombstones.v1',
 } as const;
 
 /** Nombre y versión de la base IndexedDB. */
