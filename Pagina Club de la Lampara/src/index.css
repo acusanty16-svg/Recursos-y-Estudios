@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Optimización de renderizado para listados largos de versículos (vercel-react-best-practices: rendering-content-visibility) */
+.verse-card-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 260px;
+}
