@@ -1,52 +1,35 @@
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Flame } from 'lucide-react';
 import { ClubLampProvider, useClubLamp } from './context/ClubLampContext.jsx';
 import PortalSelector from './components/shared/PortalSelector.jsx';
 import KidsLayout from './components/kids/KidsLayout.jsx';
 import GeneralLayout from './components/general/GeneralLayout.jsx';
 
 function ClubLampExperienceRouter() {
-  const { activeMode } = useClubLamp();
+  const { activeMode, isRefreshingMode, viewRefreshKey } = useClubLamp();
 
-  return (
-    <AnimatePresence mode="wait">
-      {activeMode === 'kids' && (
-        <motion.div
-          key="kids-experience"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.35 }}
-        >
-          <KidsLayout />
-        </motion.div>
-      )}
+  if (isRefreshingMode) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-amber-200 flex flex-col items-center justify-center p-6">
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center mb-3 animate-pulse">
+          <Flame className="w-7 h-7 text-amber-400" />
+        </div>
+        <p className="text-sm font-medium tracking-wide text-amber-100/90">
+          Cargando experiencia del Club de la Lámpara...
+        </p>
+      </div>
+    );
+  }
 
-      {activeMode === 'general' && (
-        <motion.div
-          key="general-experience"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.35 }}
-        >
-          <GeneralLayout />
-        </motion.div>
-      )}
+  if (activeMode === 'kids') {
+    return <KidsLayout key={`kids-${viewRefreshKey}`} />;
+  }
 
-      {!activeMode && (
-        <motion.div
-          key="portal-selector"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <PortalSelector />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  if (activeMode === 'general') {
+    return <GeneralLayout key={`general-${viewRefreshKey}`} />;
+  }
+
+  return <PortalSelector key={`portal-${viewRefreshKey}`} />;
 }
 
 export default function App() {

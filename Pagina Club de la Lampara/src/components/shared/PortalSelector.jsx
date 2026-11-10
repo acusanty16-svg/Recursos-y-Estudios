@@ -114,7 +114,7 @@ export default function PortalSelector() {
               </h2>
 
               <p className="text-slate-900/90 font-medium text-base sm:text-lg mb-6 leading-relaxed">
-                ¡Una aventura interactiva para niños! Explora las <strong>6 Islas de Luz</strong>, descubre historias bíblicas ilustradas, escucha los versículos y juega a atrapar las palabras mágicas.
+                ¡Una aventura interactiva para niños! Explora las <strong>6 Islas de Luz</strong>, descubre historias bíblicas ilustradas, escucha los versículos y juega a atrapar las palabras luminosas.
               </p>
 
               {/* Píldoras de características infantiles */}
@@ -174,30 +174,30 @@ export default function PortalSelector() {
               </div>
 
               <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 mb-3 leading-tight">
-                Estudio y Retención Bíblica
+                Programa General de Estudio
               </h2>
 
               <p className="text-stone-600 text-base sm:text-lg mb-6 leading-relaxed">
-                Una experiencia editorial serena, estructurada y profunda para jóvenes y adultos del Club. Estudia los <strong>6 Niveles</strong> con contexto teológico y laboratorio de memorización activa.
+                Plataforma formal de lectura, estudio doctrinal y seguimiento semanal para jóvenes y adultos del Club. Organizada en <strong>6 Niveles (8 semanas por nivel)</strong> con entrega semanal al encargado.
               </p>
 
               {/* Píldoras de características modo general */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-8">
                 <div className="bg-white border border-stone-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
                   <BookOpen className="w-4 h-4 text-amber-700 shrink-0" />
-                  <span>Contexto Bíblico y Teológico</span>
+                  <span>Plan Semanal por Niveles</span>
                 </div>
                 <div className="bg-white border border-stone-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
                   <Compass className="w-4 h-4 text-slate-700 shrink-0" />
-                  <span>Índice Modular por 6 Niveles</span>
+                  <span>Contexto Doctrinal y Pastoral</span>
                 </div>
                 <div className="bg-white border border-stone-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
-                  <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
-                  <span>Técnica de Huecos e Iniciales</span>
+                  <Shield className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>Control de Entrega al Encargado</span>
                 </div>
                 <div className="bg-white border border-stone-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-xs sm:text-sm font-medium text-slate-700">
                   <Award className="w-4 h-4 text-emerald-700 shrink-0" />
-                  <span>Seguimiento de Dominio Personal</span>
+                  <span>Lectura Limpia y Audio Integrado</span>
                 </div>
               </div>
             </div>

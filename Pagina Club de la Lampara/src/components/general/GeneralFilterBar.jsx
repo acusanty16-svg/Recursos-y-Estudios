@@ -1,116 +1,189 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Search, X, LayoutGrid, List } from 'lucide-react';
+import { Search, X, CheckCircle2, Layers, Lock, Unlock } from 'lucide-react';
 import { useClubLamp } from '../../context/ClubLampContext.jsx';
 
-export default function GeneralFilterBar({ viewMode, setViewMode }) {
+export default function GeneralFilterBar() {
   const {
+    levels,
+    activeLevel,
+    selectLevel,
+    isLevelUnlocked,
     categories,
     selectedCategory,
     setSelectedCategory,
     searchQuery,
     setSearchQuery,
-    currentLevelMeta,
-    filteredVerses,
+    totalCount,
   } = useClubLamp();
 
+  const allLevelsUnlocked = isLevelUnlocked('all');
+
   return (
-    <div className="bg-white rounded-2xl border border-stone-200/90 p-4 sm:p-5 shadow-general-card space-y-4">
-      {/* Encabezado del Nivel activo y buscador */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="font-serif text-xl sm:text-2xl font-semibold text-slate-900">
-              {currentLevelMeta?.nombre}
-            </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200 text-stone-700 text-xs font-medium">
-              {filteredVerses.length} versículos
+    <div className="space-y-4">
+      {/* Selector de los 6 Niveles con Bloqueo Estricto por Candado */}
+      <div className="bg-white rounded-2xl border border-stone-200/90 p-3.5 sm:p-5 shadow-general-card">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500 block">
+              Progresión Oficial de los 6 Niveles (Debes completar las 8 semanas para desbloquear el siguiente)
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
-            {currentLevelMeta?.descripcionGeneral}
-          </p>
+
+          {allLevelsUnlocked && (
+            <button
+              type="button"
+              onClick={() => selectLevel(activeLevel === 'all' ? 1 : 'all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition-colors ${
+                activeLevel === 'all'
+                  ? 'bg-slate-900 text-white border-slate-900'
+                  : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>
+                {activeLevel === 'all'
+                  ? `Viendo los ${totalCount} versículos`
+                  : `Ver los ${totalCount} versículos`}
+              </span>
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-2.5">
-          {/* Buscador editorial */}
-          <div className="relative flex-1 md:w-64">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar cita, tema o texto..."
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-stone-50 border border-stone-200/90 text-xs sm:text-sm text-slate-900 placeholder:text-stone-400 focus:outline-none focus:border-amber-600 focus:bg-white transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-slate-700"
-                aria-label="Limpiar búsqueda"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {levels.map((lvl) => {
+            const isSelected = Number(activeLevel) === lvl.id;
+            const isUnlocked = isLevelUnlocked(lvl.id);
 
-          {/* Conmutador Cuadrícula / Lista de Estudio */}
-          <div className="hidden sm:flex items-center p-1 rounded-xl bg-stone-100 border border-stone-200">
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              title="Vista en tarjetas"
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-stone-500 hover:text-slate-900'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              title="Vista de lectura compacta"
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-stone-500 hover:text-slate-900'
-              }`}
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+            return (
+              <button
+                key={lvl.id}
+                type="button"
+                onClick={() => selectLevel(lvl.id)}
+                className={`text-left p-3 rounded-xl border-2 transition-all flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-slate-900 text-white border-amber-400 shadow-md'
+                    : lvl.isCompleted
+                    ? 'bg-emerald-50/60 hover:bg-emerald-50 text-slate-900 border-emerald-300'
+                    : isUnlocked
+                    ? 'bg-amber-50/40 hover:bg-amber-50/80 text-slate-900 border-amber-300/80'
+                    : 'bg-stone-100/80 hover:bg-stone-200/60 text-stone-500 border-stone-200/90 opacity-85'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1 mb-1.5">
+                  <span
+                    className={`text-xs font-extrabold uppercase tracking-wider ${
+                      isSelected
+                        ? 'text-amber-400'
+                        : lvl.isCompleted
+                        ? 'text-emerald-800'
+                        : isUnlocked
+                        ? 'text-amber-900'
+                        : 'text-stone-500'
+                    }`}
+                  >
+                    Nivel {lvl.id}
+                  </span>
+
+                  <span
+                    className={`text-xs font-bold flex items-center gap-1 ${
+                      lvl.isCompleted
+                        ? isSelected
+                          ? 'text-emerald-400'
+                          : 'text-emerald-700'
+                        : isSelected
+                        ? 'text-slate-200'
+                        : 'text-stone-500'
+                    }`}
+                  >
+                    {lvl.isCompleted ? (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    ) : !isUnlocked ? (
+                      <Lock className="w-3.5 h-3.5 text-stone-500" />
+                    ) : (
+                      <Unlock className="w-3.5 h-3.5 text-amber-600" />
+                    )}
+                    {lvl.completedCount}/{lvl.totalVersiculos}
+                  </span>
+                </div>
+
+                <p
+                  className={`text-[11px] font-semibold truncate mb-2 ${
+                    isSelected
+                      ? 'text-slate-300'
+                      : lvl.isCompleted
+                      ? 'text-emerald-800'
+                      : isUnlocked
+                      ? 'text-amber-900/80'
+                      : 'text-stone-500'
+                  }`}
+                >
+                  {lvl.isCompleted
+                    ? 'Nivel Aprobado'
+                    : isUnlocked
+                    ? 'Nivel en Curso'
+                    : 'Bloqueado'}
+                </p>
+
+                <div className="w-full h-1.5 rounded-full bg-stone-300/50 overflow-hidden">
+                  <div
+                    style={{ width: `${lvl.percentage}%` }}
+                    className={`h-full rounded-full transition-all ${
+                      lvl.isCompleted
+                        ? 'bg-emerald-500'
+                        : isSelected
+                        ? 'bg-amber-400'
+                        : 'bg-amber-600'
+                    }`}
+                  />
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Filtro de Categorías con transición layoutId */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-1 no-scrollbar border-t border-stone-100">
-        {categories.map((cat) => {
-          const active = selectedCategory === cat;
-          return (
+      {/* Barra de Búsqueda y Filtro por Categoría */}
+      <div className="bg-white rounded-2xl border border-stone-200/90 p-3.5 sm:p-4 shadow-general-card flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+          {categories.map((cat) => {
+            const active = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                  active
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-stone-100/80 text-stone-600 hover:text-slate-900 hover:bg-stone-200/70'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="relative w-full md:w-72 shrink-0">
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Filtrar por cita o palabra..."
+            className="w-full pl-9 pr-8 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs sm:text-sm text-slate-900 placeholder:text-stone-400 focus:outline-none focus:border-slate-900 focus:bg-white transition-colors"
+          />
+          {searchQuery && (
             <button
-              key={cat}
               type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`relative px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
-                active
-                  ? 'text-white'
-                  : 'text-stone-600 hover:text-slate-900 hover:bg-stone-100/80'
-              }`}
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-slate-700"
+              aria-label="Limpiar búsqueda"
             >
-              {active && (
-                <motion.span
-                  layoutId="general-category-pill"
-                  transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                  className="absolute inset-0 bg-slate-900 rounded-xl"
-                />
-              )}
-              <span className="relative z-10">{cat}</span>
+              <X className="w-4 h-4" />
             </button>
-          );
-        })}
+          )}
+        </div>
       </div>
     </div>
   );

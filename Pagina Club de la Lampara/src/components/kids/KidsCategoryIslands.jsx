@@ -11,6 +11,7 @@ import {
   Search,
   X,
   Layers,
+  Lock,
 } from 'lucide-react';
 import { useClubLamp } from '../../context/ClubLampContext.jsx';
 
@@ -58,36 +59,46 @@ export default function KidsCategoryIslands() {
     levels,
     activeLevel,
     selectLevel,
+    isLevelUnlocked,
     categories,
     selectedCategory,
     setSelectedCategory,
     searchQuery,
     setSearchQuery,
     currentLevelMeta,
+    totalCount,
   } = useClubLamp();
+
+  const allIslandsUnlocked = isLevelUnlocked('all');
 
   return (
     <section className="space-y-6">
-      {/* Mapa de las 6 Islas de Nivel */}
+      {/* Mapa de las 6 Islas de Nivel con Candados */}
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <h2 className="font-kids text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Compass className="w-6 h-6 text-amber-500" />
-            <span>Mapa de los 6 Niveles del Club</span>
+            <span>Mapa de las 6 Islas de Luz</span>
           </h2>
 
-          <button
-            type="button"
-            onClick={() => selectLevel(activeLevel === 'all' ? 1 : 'all')}
-            className={`px-3.5 py-1.5 rounded-2xl font-kids font-bold text-xs sm:text-sm border-2 transition-all flex items-center gap-1.5 ${
-              activeLevel === 'all'
-                ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-sm'
-                : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>{activeLevel === 'all' ? 'Viendo los 60 versículos' : 'Ver los 60 juntos'}</span>
-          </button>
+          {allIslandsUnlocked && (
+            <button
+              type="button"
+              onClick={() => selectLevel(activeLevel === 'all' ? 1 : 'all')}
+              className={`px-3.5 py-1.5 rounded-2xl font-kids font-bold text-xs sm:text-sm border-2 transition-all flex items-center gap-1.5 ${
+                activeLevel === 'all'
+                  ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-sm'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>
+                {activeLevel === 'all'
+                  ? `Viendo los ${totalCount} versículos`
+                  : `Ver los ${totalCount} juntos`}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Cuadrícula de Islas de Nivel */}
@@ -96,6 +107,7 @@ export default function KidsCategoryIslands() {
             const style = LEVEL_STYLES[lvl.id] || LEVEL_STYLES[1];
             const IconComponent = style.icon;
             const isSelected = Number(activeLevel) === lvl.id;
+            const isUnlocked = isLevelUnlocked(lvl.id);
 
             return (
               <motion.button
@@ -107,22 +119,37 @@ export default function KidsCategoryIslands() {
                 className={`relative text-left p-3.5 rounded-3xl border-2 border-b-4 transition-all flex flex-col justify-between overflow-hidden ${
                   isSelected
                     ? `bg-gradient-to-br ${style.bg} text-white border-slate-900/25 shadow-lg`
+                    : !isUnlocked
+                    ? 'bg-stone-100/90 border-stone-300 text-slate-500 opacity-90 hover:bg-stone-200/70'
                     : `${style.lightBg} hover:bg-white`
                 }`}
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span
                     className={`w-9 h-9 rounded-2xl flex items-center justify-center shadow-sm ${
-                      isSelected ? 'bg-white/25 text-white' : style.badge
+                      !isUnlocked
+                        ? 'bg-stone-300 text-slate-600'
+                        : isSelected
+                        ? 'bg-white/25 text-white'
+                        : style.badge
                     }`}
                   >
-                    <IconComponent className="w-5 h-5" />
+                    {!isUnlocked ? (
+                      <Lock className="w-5 h-5" />
+                    ) : (
+                      <IconComponent className="w-5 h-5" />
+                    )}
                   </span>
 
                   {lvl.isCompleted ? (
                     <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[11px] font-kids font-bold flex items-center gap-1 shadow-sm">
                       <CheckCircle2 className="w-3 h-3" />
                       ¡Listo!
+                    </span>
+                  ) : !isUnlocked ? (
+                    <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-600 text-[11px] font-kids font-bold flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      Candado
                     </span>
                   ) : (
                     <span
@@ -141,7 +168,7 @@ export default function KidsCategoryIslands() {
                       isSelected ? 'text-white/90' : 'opacity-75'
                     }`}
                   >
-                    Nivel {lvl.id}
+                    Isla · Nivel {lvl.id}
                   </p>
                   <p className="font-kids font-bold text-sm sm:text-base leading-tight line-clamp-1">
                     {lvl.insignia}
