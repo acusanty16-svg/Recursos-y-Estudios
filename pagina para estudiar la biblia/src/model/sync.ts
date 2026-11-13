@@ -3,18 +3,22 @@
  * Regla arquitectónica: sin React, DOM ni APIs del navegador.
  */
 
-import { HIGHLIGHT_COLORS, TRANSLATION_IDS } from './types';
+import { HIGHLIGHT_COLORS, NOTE_CATEGORIES, SONG_CATEGORIES, TRANSLATION_IDS } from './types';
 import type {
   Bookmark,
   Highlight,
   HighlightColor,
+  LampClubProgress,
   MemorizedVerse,
   Note,
+  NoteCategory,
+  Song,
+  SongCategory,
   TranslationId,
   VerseReference,
 } from './types';
 
-export const SYNC_KINDS = ['notes', 'highlights', 'bookmarks', 'memorized'] as const;
+export const SYNC_KINDS = ['notes', 'highlights', 'bookmarks', 'memorized', 'songs', 'lampClub'] as const;
 
 export type SyncEntityKind = (typeof SYNC_KINDS)[number];
 
@@ -26,20 +30,28 @@ export interface LocalSyncData {
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
   readonly memorizedVerses: readonly MemorizedVerse[];
+  readonly songs?: readonly Song[];
+  readonly lampClub?: readonly LampClubProgress[];
 }
 
-export interface SyncSnapshot extends LocalSyncData {
+export interface SyncSnapshot {
   readonly version: 1;
   readonly updatedAt: number;
+  readonly notes: readonly Note[];
+  readonly highlights: readonly Highlight[];
+  readonly bookmarks: readonly Bookmark[];
+  readonly memorizedVerses: readonly MemorizedVerse[];
+  readonly songs: readonly Song[];
+  readonly lampClub: readonly LampClubProgress[];
   readonly tombstones: Tombstones;
 }
 
-type SyncEntity = Note | Highlight | Bookmark | MemorizedVerse;
+type SyncEntity = Note | Highlight | Bookmark | MemorizedVerse | Song | LampClubProgress;
 
 const TOMBSTONE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 180;
 
 export function createEmptyTombstones(): Tombstones {
-  return { notes: {}, highlights: {}, bookmarks: {}, memorized: {} };
+  return { notes: {}, highlights: {}, bookmarks: {}, memorized: {}, songs: {}, lampClub: {} };
 }
 
 /** Un borrado se conserva 180 días para que otros dispositivos lo reciban. */
@@ -65,9 +77,11 @@ export function mergeTombstones(local: Tombstones, remote: Tombstones): Tombston
   return result;
 }
 
-/** Las notas usan `updatedAt`; el resto de entidades solo tiene `createdAt`. */
+/** Las notas y canciones usan `updatedAt`; otras entidades usan `createdAt` o `completedAt`. */
 export function entityTimestamp(entity: SyncEntity): number {
-  return 'updatedAt' in entity ? Math.max(entity.updatedAt, entity.createdAt) : entity.createdAt;
+  if ('updatedAt' in entity) return Math.max(entity.updatedAt, entity.createdAt);
+  if ('completedAt' in entity) return entity.completedAt;
+  return entity.createdAt;
 }
 
 function mergeEntities<T extends SyncEntity>(
@@ -112,6 +126,8 @@ export function mergeSnapshots(
       remote.memorizedVerses,
       tombstones.memorized,
     ),
+    songs: mergeEntities(local.songs, remote.songs, tombstones.songs),
+    lampClub: mergeEntities(local.lampClub, remote.lampClub, tombstones.lampClub),
     tombstones,
   };
 }
@@ -128,13 +144,15 @@ export function buildSnapshot(
     highlights: data.highlights,
     bookmarks: data.bookmarks,
     memorizedVerses: data.memorizedVerses,
+    songs: data.songs ?? [],
+    lampClub: data.lampClub ?? [],
     tombstones: pruneTombstones(tombstones, updatedAt),
   };
 }
 
 export function createEmptySnapshot(now = Date.now()): SyncSnapshot {
   return buildSnapshot(
-    { notes: [], highlights: [], bookmarks: [], memorizedVerses: [] },
+    { notes: [], highlights: [], bookmarks: [], memorizedVerses: [], songs: [], lampClub: [] },
     createEmptyTombstones(),
     now,
   );
@@ -171,11 +189,18 @@ function isTags(value: unknown): value is readonly string[] {
   return Array.isArray(value) && value.every((tag) => typeof tag === 'string');
 }
 
+function isNoteCategory(value: unknown): value is NoteCategory {
+  return typeof value === 'string' && (NOTE_CATEGORIES as readonly string[]).includes(value);
+}
+
+function isSongCategory(value: unknown): value is SongCategory {
+  return typeof value === 'string' && (SONG_CATEGORIES as readonly string[]).includes(value);
+}
+
 function parseNote(value: unknown): Note | null {
   if (!isRecord(value)) return null;
   if (
     typeof value.id !== 'string' ||
-    !isReference(value.reference) ||
     !isTranslationId(value.translationId) ||
     typeof value.body !== 'string' ||
     !isTags(value.tags) ||
@@ -184,14 +209,82 @@ function parseNote(value: unknown): Note | null {
   ) {
     return null;
   }
+
+  const reference = value.reference !== undefined ? (isReference(value.reference) ? value.reference : null) : undefined;
+  if (reference === null) return null;
+
+  const category = isNoteCategory(value.category) ? value.category : undefined;
+  const linkedReferences = Array.isArray(value.linkedReferences)
+    ? value.linkedReferences.filter(isReference)
+    : undefined;
+
   return {
     id: value.id,
-    reference: value.reference,
     translationId: value.translationId,
     body: value.body,
     tags: value.tags,
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
+    ...(reference ? { reference } : {}),
+    ...(category ? { category } : {}),
+    ...(typeof value.title === 'string' && value.title ? { title: value.title } : {}),
+    ...(typeof value.speaker === 'string' && value.speaker ? { speaker: value.speaker } : {}),
+    ...(typeof value.eventDate === 'string' && value.eventDate ? { eventDate: value.eventDate } : {}),
+    ...(linkedReferences && linkedReferences.length > 0 ? { linkedReferences } : {}),
+  };
+}
+
+function parseSong(value: unknown): Song | null {
+  if (!isRecord(value)) return null;
+  if (
+    typeof value.id !== 'string' ||
+    typeof value.title !== 'string' ||
+    typeof value.artist !== 'string' ||
+    typeof value.originalKey !== 'string' ||
+    !isSongCategory(value.category) ||
+    typeof value.content !== 'string' ||
+    !isFiniteNumber(value.createdAt) ||
+    !isFiniteNumber(value.updatedAt)
+  ) {
+    return null;
+  }
+  return {
+    id: value.id,
+    title: value.title,
+    artist: value.artist,
+    originalKey: value.originalKey,
+    category: value.category,
+    content: value.content,
+    createdAt: value.createdAt,
+    updatedAt: value.updatedAt,
+    ...(isFiniteNumber(value.capo) ? { capo: value.capo } : {}),
+    ...(isFiniteNumber(value.bpm) ? { bpm: value.bpm } : {}),
+    ...(typeof value.timeSignature === 'string' ? { timeSignature: value.timeSignature } : {}),
+    ...(typeof value.bibleReference === 'string' ? { bibleReference: value.bibleReference } : {}),
+    ...(typeof value.notes === 'string' ? { notes: value.notes } : {}),
+    ...(typeof value.isBuiltIn === 'boolean' ? { isBuiltIn: value.isBuiltIn } : {}),
+  };
+}
+
+function parseLampClub(value: unknown): LampClubProgress | null {
+  if (!isRecord(value)) return null;
+  if (
+    typeof value.id !== 'string' ||
+    !isFiniteNumber(value.level) ||
+    typeof value.referenceLabel !== 'string' ||
+    !isFiniteNumber(value.completedAt) ||
+    !isFiniteNumber(value.bestScore) ||
+    !isTranslationId(value.translationId)
+  ) {
+    return null;
+  }
+  return {
+    id: value.id,
+    level: value.level,
+    referenceLabel: value.referenceLabel,
+    completedAt: value.completedAt,
+    bestScore: value.bestScore,
+    translationId: value.translationId,
   };
 }
 
@@ -293,6 +386,8 @@ export function parseSnapshot(value: unknown): SyncSnapshot | null {
     highlights: parseList(value.highlights, parseHighlight),
     bookmarks: parseList(value.bookmarks, parseBookmark),
     memorizedVerses: parseList(value.memorizedVerses, parseMemorized),
+    songs: parseList(value.songs, parseSong),
+    lampClub: parseList(value.lampClub, parseLampClub),
     tombstones: parseTombstones(value.tombstones),
   };
 }

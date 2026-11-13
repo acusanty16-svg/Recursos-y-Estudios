@@ -31,4 +31,21 @@ export {
   type Weekday,
 } from './recordatorios';
 
-export type ImportKind = 'versiculos' | 'plan-lectura' | 'recordatorios';
+export {
+  SONGS_FILE_MOCK,
+  BUILTIN_SONGS,
+  validateSongsFile,
+  type SongEntry,
+  type SongsFile,
+} from './canciones';
+
+export {
+  LAMP_CLUB_FILE,
+  LAMP_CLUB_LEVELS,
+  validateLampClub,
+  type LampClubFile,
+  type LampLevel,
+  type LampVerseEntry,
+} from './club-lampara';
+
+export type ImportKind = 'versiculos' | 'plan-lectura' | 'recordatorios' | 'canciones';

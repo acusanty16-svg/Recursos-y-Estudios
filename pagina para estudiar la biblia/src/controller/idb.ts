@@ -6,9 +6,11 @@ import type {
   Highlight,
   ImportKind,
   ImportedFileMeta,
+  LampClubProgress,
   MemorizedVerse,
   Note,
   ReadingEvent,
+  Song,
 } from '../model/types';
 
 interface HandleRecord {
@@ -28,6 +30,8 @@ interface SantiDB extends DBSchema {
   highlights: { key: string; value: Highlight; indexes: { 'by-ref': string } };
   bookmarks: { key: string; value: Bookmark; indexes: { 'by-ref': string } };
   memorized: { key: string; value: MemorizedVerse; indexes: { 'by-ref': string } };
+  songs: { key: string; value: Song };
+  lampClub: { key: string; value: LampClubProgress };
   events: { key: string; value: ReadingEvent; indexes: { 'by-day': string } };
   handles: { key: ImportKind; value: HandleRecord };
   meta: { key: string; value: MetaRecord };
@@ -62,6 +66,12 @@ export function getDb(): Promise<AppDatabase> {
       if (!db.objectStoreNames.contains('memorized')) {
         const store = db.createObjectStore('memorized', { keyPath: 'id' });
         store.createIndex('by-ref', ['reference.bookNumber', 'reference.chapter', 'reference.verse']);
+      }
+      if (!db.objectStoreNames.contains('songs')) {
+        db.createObjectStore('songs', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('lampClub')) {
+        db.createObjectStore('lampClub', { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains('events')) {
         const store = db.createObjectStore('events', { keyPath: 'id' });
@@ -171,6 +181,40 @@ export async function deleteMemorizedVerse(id: string): Promise<void> {
   await db.delete('memorized', id);
 }
 
+/* ------------------------------- Canciones ------------------------------- */
+
+export async function getAllSongs(): Promise<readonly Song[]> {
+  const db = await getDb();
+  return db.getAll('songs');
+}
+
+export async function putSong(song: Song): Promise<void> {
+  const db = await getDb();
+  await db.put('songs', song);
+}
+
+export async function deleteSongRecord(id: string): Promise<void> {
+  const db = await getDb();
+  await db.delete('songs', id);
+}
+
+/* -------------------------- Club de la Lámpara --------------------------- */
+
+export async function getAllLampClub(): Promise<readonly LampClubProgress[]> {
+  const db = await getDb();
+  return db.getAll('lampClub');
+}
+
+export async function putLampClub(progress: LampClubProgress): Promise<void> {
+  const db = await getDb();
+  await db.put('lampClub', progress);
+}
+
+export async function deleteLampClub(id: string): Promise<void> {
+  const db = await getDb();
+  await db.delete('lampClub', id);
+}
+
 /**
  * Reemplaza las colecciones sincronizadas de una sola vez.
  * Se usa al aplicar una fusión de Drive para evitar estados intermedios.
@@ -180,13 +224,17 @@ export async function replaceSyncedData(data: {
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
   readonly memorizedVerses: readonly MemorizedVerse[];
+  readonly songs: readonly Song[];
+  readonly lampClub: readonly LampClubProgress[];
 }): Promise<void> {
   const db = await getDb();
-  const tx = db.transaction(['notes', 'highlights', 'bookmarks', 'memorized'], 'readwrite');
+  const tx = db.transaction(['notes', 'highlights', 'bookmarks', 'memorized', 'songs', 'lampClub'], 'readwrite');
   const notesStore = tx.objectStore('notes');
   const highlightsStore = tx.objectStore('highlights');
   const bookmarksStore = tx.objectStore('bookmarks');
   const memorizedStore = tx.objectStore('memorized');
+  const songsStore = tx.objectStore('songs');
+  const lampStore = tx.objectStore('lampClub');
 
   // Todas las peticiones se encolan de forma síncrona: así la transacción
   // no se cierra entre los clear y los put.
@@ -195,10 +243,14 @@ export async function replaceSyncedData(data: {
     highlightsStore.clear(),
     bookmarksStore.clear(),
     memorizedStore.clear(),
+    songsStore.clear(),
+    lampStore.clear(),
     ...data.notes.map((note) => notesStore.put(note)),
     ...data.highlights.map((highlight) => highlightsStore.put(highlight)),
     ...data.bookmarks.map((bookmark) => bookmarksStore.put(bookmark)),
     ...data.memorizedVerses.map((verse) => memorizedStore.put(verse)),
+    ...data.songs.map((song) => songsStore.put(song)),
+    ...data.lampClub.map((item) => lampStore.put(item)),
   ]);
 
   await tx.done;
@@ -297,6 +349,8 @@ export async function clearAllUserData(): Promise<void> {
     db.clear('highlights'),
     db.clear('bookmarks'),
     db.clear('memorized'),
+    db.clear('songs'),
+    db.clear('lampClub'),
     db.clear('events'),
     db.clear('handles'),
     db.clear('meta'),

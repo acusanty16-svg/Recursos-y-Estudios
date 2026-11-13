@@ -106,6 +106,22 @@ for (const book of CANON) {
   BOOK_ALIASES.set(aliasKey(book.id.replace(/-/g, ' ')), book.number);
 }
 
+// Variantes devocionales frecuentes (p. ej. "San Juan", "Salmo").
+const EXTRA_BOOK_ALIASES: readonly [string, number][] = [
+  ['salmo', 19],
+  ['san mateo', 40],
+  ['san marcos', 41],
+  ['san lucas', 42],
+  ['san juan', 43],
+  ['hechos de los apostoles', 44],
+  ['apoc', 66],
+  ['rm', 45],
+];
+
+for (const [alias, number] of EXTRA_BOOK_ALIASES) {
+  BOOK_ALIASES.set(alias, number);
+}
+
 /** Parser tolerante de referencias tipo "Jn 3:16", "Juan 3 16" o "1 Co 13:4-7". */
 export function parseReferenceInput(input: string): VerseReference | null {
   const cleaned = input.trim().replace(/\s+/g, ' ');
@@ -126,4 +142,40 @@ export function parseReferenceInput(input: string): VerseReference | null {
   if (chapter < 1 || chapter > book.chapters || verse < 1) return null;
 
   return { bookNumber: book.number, chapter, verse };
+}
+
+export interface DetectedReference {
+  readonly raw: string;
+  readonly start: number;
+  readonly end: number;
+  readonly reference: VerseReference;
+}
+
+const REFERENCE_SCAN_RE =
+  /\b(?:(?:1|2|3)\s+|San\s+)?[A-Za-zÁÉÍÓÚáéíóúÑñ]{2,16}(?:\s+[A-Za-zÁÉÍÓÚáéíóúÑñ]{2,12})?\s+\d{1,3}:\s*\d{1,3}(?:\s*-\s*\d{1,3})?\b/g;
+
+/**
+ * Detecta citas bíblicas dentro de apuntes de prédicas, estudios o seminarios
+ * para volverlas enlaces navegables al lector.
+ */
+export function extractBibleReferences(text: string): readonly DetectedReference[] {
+  const results: DetectedReference[] = [];
+  const matcher = new RegExp(REFERENCE_SCAN_RE.source, 'g');
+  let match: RegExpExecArray | null = matcher.exec(text);
+
+  while (match !== null) {
+    const raw = match[0];
+    const parsed = parseReferenceInput(raw);
+    if (parsed) {
+      results.push({
+        raw,
+        start: match.index,
+        end: match.index + raw.length,
+        reference: parsed,
+      });
+    }
+    match = matcher.exec(text);
+  }
+
+  return results;
 }

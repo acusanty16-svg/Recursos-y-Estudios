@@ -26,6 +26,7 @@ interface ReaderToolbarProps {
   readonly onOpenNotes: () => void;
   readonly onSelectTranslation: (translationId: TranslationId) => void;
   readonly onCompare: (translationId: TranslationId | null) => void;
+  readonly onSwapTranslations?: (() => void) | undefined;
   readonly onJumpToVerse: (verse: number) => void;
   readonly onPrevChapter: () => void;
   readonly onNextChapter: () => void;
@@ -44,6 +45,7 @@ export function ReaderToolbar({
   onOpenNotes,
   onSelectTranslation,
   onCompare,
+  onSwapTranslations,
   onJumpToVerse,
   onPrevChapter,
   onNextChapter,
@@ -208,6 +210,7 @@ export function ReaderToolbar({
           compare={compare}
           onSelect={onSelectTranslation}
           onCompare={onCompare}
+          onSwap={onSwapTranslations}
         />
 
         <button

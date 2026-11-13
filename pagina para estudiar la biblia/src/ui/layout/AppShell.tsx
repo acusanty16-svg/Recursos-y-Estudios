@@ -1,13 +1,14 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '@model/constants';
 import { useAppStore } from '@controller/store';
 import { updatePreferences } from '@controller/preferences.controller';
 import { useI18n } from '@ui/hooks/useI18n';
 import { Brand } from '@ui/components/Brand';
+import { CommandPalette } from '@ui/components/CommandPalette';
 import { ThemeToggle } from '@ui/components/ThemeToggle';
 import { LanguageToggle } from '@ui/components/LanguageToggle';
-import { FocusIcon } from '@ui/components/icons';
+import { FocusIcon, SearchIcon } from '@ui/components/icons';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 
@@ -16,6 +17,18 @@ export function AppShell({ children }: { readonly children: ReactNode }) {
   const { t } = useI18n();
   const location = useLocation();
   const isReader = location.pathname === ROUTES.reader;
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   if (preferences.focusMode) {
     return (
@@ -40,6 +53,7 @@ export function AppShell({ children }: { readonly children: ReactNode }) {
           <FocusIcon size={16} />
           {t('reader.exitFocus')}
         </button>
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       </div>
     );
   }
@@ -53,7 +67,7 @@ export function AppShell({ children }: { readonly children: ReactNode }) {
         {t('app.skipToContent')}
       </a>
 
-      <Sidebar />
+      <Sidebar onOpenSearch={() => setPaletteOpen(true)} />
 
       <div className="flex min-h-dvh flex-col">
         {isReader ? null : (
@@ -62,6 +76,14 @@ export function AppShell({ children }: { readonly children: ReactNode }) {
               <Brand compact />
             </Link>
             <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPaletteOpen(true)}
+                aria-label={t('nav.quickSearch')}
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-navy-600 transition hover:bg-navy-900/5 dark:text-parchment-200 dark:hover:bg-parchment-100/10"
+              >
+                <SearchIcon size={18} />
+              </button>
               <LanguageToggle compact />
               <ThemeToggle compact />
             </div>
@@ -77,6 +99,7 @@ export function AppShell({ children }: { readonly children: ReactNode }) {
       </div>
 
       <MobileNav />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
 }

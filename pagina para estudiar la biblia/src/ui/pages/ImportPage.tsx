@@ -4,11 +4,11 @@ import { useAppStore } from '@controller/store';
 import { forgetResource, importDroppedResource, importResource, loadResourceJson, reconnectResource } from '@controller/import.controller';
 import { useI18n, formatShortDate } from '@ui/hooks/useI18n';
 import { PageHeader } from '@ui/components/PageHeader';
-import { BookIcon, CalendarIcon, CheckIcon, ExternalIcon, FlameIcon, RefreshIcon, TrashIcon, UploadIcon } from '@ui/components/icons';
+import { BookIcon, CalendarIcon, CheckIcon, ExternalIcon, FlameIcon, MusicIcon, RefreshIcon, TrashIcon, UploadIcon } from '@ui/components/icons';
 
 interface ResourceDefinition {
   readonly kind: ImportKind;
-  readonly titleKey: 'import.versiculos' | 'import.plan' | 'import.recordatorios';
+  readonly titleKey: 'import.versiculos' | 'import.plan' | 'import.recordatorios' | 'import.canciones';
   readonly shape: string;
   readonly Icon: typeof BookIcon;
 }
@@ -31,6 +31,12 @@ const RESOURCES: readonly ResourceDefinition[] = [
     titleKey: 'import.recordatorios',
     shape: '{ version, reminders: [{ id, time, days, enabled }] }',
     Icon: FlameIcon,
+  },
+  {
+    kind: 'canciones',
+    titleKey: 'import.canciones',
+    shape: '{ version, songs: [{ id, title, artist, originalKey, category, content }] }',
+    Icon: MusicIcon,
   },
 ];
 
@@ -86,7 +92,7 @@ export function ImportPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {RESOURCES.map(({ kind, titleKey, shape, Icon }) => {
           const meta = metaFor(kind);
           const isBusy = busy === kind;

@@ -5,6 +5,8 @@ import { clearAllUserData, clearChapterCache } from '@controller/idb';
 import { requestNotificationPermission } from '@controller/notifications.controller';
 import { isFileSystemAccessSupported } from '@controller/fs-access.service';
 import { getGoogleClientId } from '@controller/google-auth.service';
+import { getEffectiveSongs } from '@controller/music.controller';
+import { TOTAL_LAMP_VERSES } from '@rsc/club-lampara';
 import {
   configureGoogleClientId,
   connectGoogleAccount,
@@ -376,7 +378,7 @@ export function SettingsPage() {
           {t('settings.data')}
         </h2>
 
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <dt className="sv-label mb-1">{t('notes.tabNotes')}</dt>
             <dd className="font-serif text-2xl text-navy-900 dark:text-parchment-50">{state.notes.length}</dd>
@@ -393,6 +395,18 @@ export function SettingsPage() {
             <dt className="sv-label mb-1">{t('notes.tabMemorize')}</dt>
             <dd className="font-serif text-2xl text-navy-900 dark:text-parchment-50">
               {state.memorizedVerses.length}
+            </dd>
+          </div>
+          <div>
+            <dt className="sv-label mb-1">{t('lamp.title')}</dt>
+            <dd className="font-serif text-2xl text-navy-900 dark:text-parchment-50">
+              {state.lampClub.length} / {TOTAL_LAMP_VERSES}
+            </dd>
+          </div>
+          <div>
+            <dt className="sv-label mb-1">{t('nav.music')}</dt>
+            <dd className="font-serif text-2xl text-navy-900 dark:text-parchment-50">
+              {getEffectiveSongs(state.songs).length}
             </dd>
           </div>
         </dl>

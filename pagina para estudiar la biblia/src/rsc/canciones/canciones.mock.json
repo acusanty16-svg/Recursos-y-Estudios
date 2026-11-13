@@ -1,0 +1,145 @@
+{
+  "version": "1.0.0",
+  "description": "Cancionero base de alabanza, adoración e himnos cristianos con acordes sobre la letra (estilo LaCuerda / ChordPro).",
+  "songs": [
+    {
+      "id": "builtin-tu-fidelidad",
+      "title": "Tu Fidelidad",
+      "artist": "Marcos Witt",
+      "originalKey": "D",
+      "bpm": 68,
+      "timeSignature": "4/4",
+      "category": "adoracion",
+      "bibleReference": "Lamentaciones 3:22-23",
+      "notes": "Clásico de adoración. Progresión I - vi - ii - V con paso en bajo A/C#.",
+      "content": "INTRO:\nD   Bm7   Em7   A7\n\nESTROFA:\nD           Bm7      Em7\nTu fidelidad es grande,\nA7                  D    A/C#\ntu fidelidad incomparable es.\nBm7          Bm7/A    Em7\nNadie es como tú, bendito Dios,\nA7          D\ngrande es tu fidelidad.\n\nCORO:\nD           Bm7      Em7\nTu fidelidad es grande,\nA7                  D    A/C#\ntu fidelidad incomparable es.\nBm7                   Em7\nNadie es como tú, bendito Dios,\nA7          G    D\ngrande es tu fidelidad."
+    },
+    {
+      "id": "builtin-cuan-grande-es-dios",
+      "title": "Cuán Grande es Dios",
+      "artist": "En Espíritu y en Verdad",
+      "originalKey": "G",
+      "bpm": 76,
+      "timeSignature": "4/4",
+      "category": "adoracion",
+      "bibleReference": "Salmos 104:1-2",
+      "notes": "Usa acordes abiertos en Sol (G, Em7, Cadd9, D) ideales para guitarra acústica.",
+      "content": "INTRO:\nG   Em7   Cadd9   D\n\nESTROFA 1:\nG                     Em7\nEl esplendor de un Rey, vestido en majestad,\n                  Cadd9\nla tierra alegre está, la tierra alegre está.\nG                     Em7\nCubierto está de luz, venció a la oscuridad\n                 Cadd9\ny tiembla a su voz, tiembla a su voz.\n\nCORO:\nG\nCuán grande es Dios,\n           Em7\ncántale cuán grande es Dios,\n          Cadd9               D       G\ny todos lo verán, cuán grande es Dios.\n\nESTROFA 2:\nG                   Em7\nDía a día Él está y el tiempo está en Él,\n                  Cadd9\nprincipio y el fin, principio y el fin.\nG                       Em7\nLa Trinidad en Dios, el Padre, Hijo, Espíritu,\n                 Cadd9\nCordero y el León, Cordero y el León.\n\nPUENTE:\nG\nNombre sobre todo es Él,\nEm7\nTú eres digno de alabar\nCadd9             D          G\ny mi ser dirá cuán grande es Dios."
+    },
+    {
+      "id": "builtin-renuevame",
+      "title": "Renuévame",
+      "artist": "Marcos Witt",
+      "originalKey": "D",
+      "bpm": 72,
+      "timeSignature": "4/4",
+      "category": "ministracion",
+      "bibleReference": "Salmos 51:10",
+      "notes": "Tonalidad original en Re. Muy usada para tiempos de consagración y oración.",
+      "content": "ESTROFA:\nD        G       A      D\nRenuévame Señor Jesús,\nG            Em7      A\nya no quiero ser igual.\nD        G       A      D\nRenuévame Señor Jesús,\nG         Em7      A\npon en mí tu corazón.\n\nCORO:\nD           A/C#         Bm7      F#m\nPorque todo lo que hay dentro de mí,\nG        Em7        A\nnecesita ser cambiado Señor.\nD           A/C#         Bm7      F#m\nPorque todo lo que hay dentro de mi corazón\nG          A          D\nnecesita más de Ti."
+    },
+    {
+      "id": "builtin-sublime-gracia",
+      "title": "Sublime Gracia",
+      "artist": "Himno Tradicional",
+      "originalKey": "G",
+      "bpm": 66,
+      "timeSignature": "3/4",
+      "category": "himno",
+      "bibleReference": "Efesios 2:8-9",
+      "notes": "Compás de 3/4 (vals lento). Se puede tocar muy limpio con arpegio en G - C - D7.",
+      "content": "ESTROFA 1:\nG             C        G\nSublime gracia del Señor,\n                  D\nque a un infeliz salvó.\nG                C      G\nFui ciego mas hoy veo yo,\n       Em     D    G\nperdido y Él me halló.\n\nESTROFA 2:\nG             C      G\nSu gracia me enseñó a temer,\n                  D\nmis dudas ahuyentó.\nG                 C      G\n¡Oh cuán precioso fue a mi ser\n       Em    D     G\ncuando Él me transformó!\n\nESTROFA 3:\nG              C        G\nEn los peligros o aflicción\n                  D\nque yo he tenido aquí,\nG                 C       G\nsu gracia siempre me libró\n      Em   D    G\ny me guiará feliz."
+    },
+    {
+      "id": "builtin-bueno-es-dios",
+      "title": "Bueno es Dios",
+      "artist": "Don Moen",
+      "originalKey": "A",
+      "bpm": 82,
+      "timeSignature": "4/4",
+      "category": "alabanza",
+      "bibleReference": "Salmos 100:5",
+      "notes": "Puedes probar Capo 2 usando formas de Sol (G) si prefieres evitar cejillas en F#m.",
+      "content": "CORO:\nA                E\nBueno es Dios, siempre fiel,\nD                E\npuso un canto nuevo en mi ser.\nA                E\nBueno es Dios, siempre fiel,\nD                 E\nen la oscuridad brillará su amor.\nD      E        A    E/G#  F#m\nBueno es Dios, bueno es Dios,\nD       E       A\nsiempre es fiel.\n\nESTROFA:\nF#m              C#m\nSi tú vas por el valle\nD                   E\ny hay sombras alrededor,\nF#m              C#m\nno temas pues contigo está,\nD                E\nte guarda con su amor."
+    },
+    {
+      "id": "builtin-vine-a-adorarte",
+      "title": "Vine a Adorarte",
+      "artist": "Marcela Gándara / Tim Hughes",
+      "originalKey": "D",
+      "bpm": 74,
+      "timeSignature": "4/4",
+      "category": "adoracion",
+      "bibleReference": "Juan 4:23-24",
+      "notes": "Estrofas suaves en D - A - Em - G; el coro abre con D - A - Bm - G.",
+      "content": "ESTROFA 1:\nD           A        Em         G\nTú eres la luz que brilló en las tinieblas,\nD         A         G\nabrió mis ojos pude ver.\nD        A          Em          G\nMi corazón adora tu hermosura,\nD          A          G\nesperanza de vida eres Tú.\n\nCORO:\n              D               A\nVine a adorarte, vine a postrarme,\n             Bm           G\nvine a decir que eres mi Dios.\n              D               A\nSolo Tú eres grande, solo Tú eres digno,\n             Bm           G\neres asombroso para mí.\n\nPUENTE:\nA     Bm         G\nNunca sabré cuánto costó\nA     Bm        G\nver mi maldad sobre esa cruz."
+    },
+    {
+      "id": "builtin-cuan-grande-es-el",
+      "title": "Cuán Grande es Él",
+      "artist": "Himno Clásico",
+      "originalKey": "G",
+      "bpm": 70,
+      "timeSignature": "4/4",
+      "category": "himno",
+      "bibleReference": "Salmos 8:3-4",
+      "content": "ESTROFA 1:\nG                 C\nSeñor mi Dios, al contemplar los cielos,\nG         D         G\nel firmamento y las estrellas mil.\n               C\nAl oír tu voz en los potentes truenos\nG           D              G\ny ver brillar al sol en su cenit.\n\nCORO:\nG           C             G\nMi corazón entona la canción,\n             D             G\ncuán grande es Él, cuán grande es Él.\n            C             G\nMi corazón entona la canción,\n            D     D7       G\ncuán grande es Él, cuán grande es Él."
+    },
+    {
+      "id": "builtin-abre-mis-ojos",
+      "title": "Abre Mis Ojos Oh Cristo",
+      "artist": "Danilo Montero",
+      "originalKey": "E",
+      "bpm": 88,
+      "timeSignature": "4/4",
+      "category": "alabanza",
+      "bibleReference": "Salmos 119:18",
+      "notes": "Si la cantas con Capo 2 en D o Capo 4 en C resulta muy cómoda para voz media.",
+      "content": "ESTROFA:\nE\nAbre mis ojos oh Cristo,\nB/D#\nabre mis ojos Te pido,\nA\nyo quiero verte,\nE\nyo quiero verte.\n\nCORO:\n         B              C#m\nY contemplar tu majestad\n     A               B\ny el resplandor de tu gloria.\n           B              C#m\nDerrama tu amor y poder\n       A               B\ncuando cantamos Santo, Santo.\n\nPUENTE:\nE\nSanto, Santo, Santo,\nB/D#\nSanto, Santo, Santo,\nA\nSanto, Santo, Santo,\nE\nyo quiero verte."
+    },
+    {
+      "id": "builtin-dios-manda-lluvia",
+      "title": "Dios Manda Lluvia",
+      "artist": "Generación 12 / Erick Porta",
+      "originalKey": "G",
+      "bpm": 68,
+      "timeSignature": "4/4",
+      "category": "ministracion",
+      "bibleReference": "Zacarías 10:1",
+      "content": "ESTROFA:\nG                     Em7\nDios manda lluvia, derrama de tu Espíritu,\nC                  Am7        D\nenvía hoy tu fuego, sana mis heridas,\n                 G\nrestáurame Señor.\n\nCORO:\nG      D/F#   Em7     Bm7\nManda la lluvia, el rocío de tu amor\nC             G/B         Am7      D\nllenando las vidas de la tierra oh Señor.\nG      D/F#   Em7     Bm7\nManda la lluvia, el rocío de tu amor,\nC             D           G\nvisita mi vida, cámbiame Señor."
+    },
+    {
+      "id": "builtin-quiero-levantar-mis-manos",
+      "title": "Quiero Levantar Mis Manos",
+      "artist": "Marcos Witt",
+      "originalKey": "G",
+      "bpm": 70,
+      "timeSignature": "4/4",
+      "category": "adoracion",
+      "bibleReference": "Salmos 63:4",
+      "content": "ESTROFA:\nG                     Bm7\nQuiero levantar mis manos,\nEm7                   Bm7\nquiero levantar mi voz,\nC         Am7        D\nofreciendo a Ti mi vida\nC                 D\nen santidad y amor.\n\nCORO:\nG        D/F#    Em7\nPadre solo a Ti te ofrezco\nBm7             C\nmi vida y mi corazón,\nAm7              D\ny me postro en tu presencia\nC       D    G\nen adoración.\n\nFINAL:\nG       Bm7  Em7  C     D    G\nHijo de Dios, recibe hoy\nG     Bm7 Em7  C      D    G\ntoda la gloria, la honra y honor."
+    },
+    {
+      "id": "builtin-al-que-esta-sentado",
+      "title": "Al Que Está Sentado en el Trono",
+      "artist": "Marcos Brunet",
+      "originalKey": "C",
+      "bpm": 72,
+      "timeSignature": "4/4",
+      "category": "adoracion",
+      "bibleReference": "Apocalipsis 5:13",
+      "content": "INTRO:\nC   G/B   Am7   F\n\nESTROFA:\nC              G/B\nQuiero conocerte cada día más a Ti,\nAm7                      F\nentrar en tu presencia y adorar.\nC                      G/B\nRevélanos tu gloria, deseamos ir mucho más en Ti,\nAm7                       F\nqueremos tu presencia Jesús.\n\nCORO:\nC               G/B\nAl que está sentado en el trono,\nAm7             F\nal que vive para siempre y siempre:\nC          G\nsea la gloria, sea la honra\nAm7          F\ny el poder, sea la gloria."
+    },
+    {
+      "id": "builtin-cristo-yo-te-amo",
+      "title": "Cristo Yo Te Amo",
+      "artist": "Vino Nuevo",
+      "originalKey": "G",
+      "bpm": 96,
+      "timeSignature": "4/4",
+      "category": "jubilo",
+      "bibleReference": "Salmos 18:1-2",
+      "content": "ESTROFA:\nG              Em\nCristo yo te amo,\nC              D\nCristo yo te amo,\nG           D/F#    Em\nno hay nadie como Tú,\nC       D       G\nJesús mi Salvador.\n\nCORO:\nC        D        G    D/F#   Em\nY te adoraré por siempre mi Señor,\nC        D        G\npor toda la eternidad."
+    }
+  ]
+}

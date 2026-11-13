@@ -55,9 +55,17 @@ export interface VerseReference {
 
 export type NoteId = string;
 
+export const NOTE_CATEGORIES = ['verse', 'sermon', 'study', 'seminar', 'devotional'] as const;
+export type NoteCategory = (typeof NOTE_CATEGORIES)[number];
+
 export interface Note {
   readonly id: NoteId;
-  readonly reference: VerseReference;
+  readonly category?: NoteCategory;
+  readonly title?: string;
+  readonly speaker?: string;
+  readonly eventDate?: string;
+  readonly reference?: VerseReference;
+  readonly linkedReferences?: readonly VerseReference[];
   readonly translationId: TranslationId;
   /** Texto libre escrito por el usuario. */
   readonly body: string;
@@ -131,7 +139,37 @@ export interface Preferences {
   readonly notificationTime: string;
 }
 
-export type ImportKind = 'versiculos' | 'plan-lectura' | 'recordatorios';
+export type ImportKind = 'versiculos' | 'plan-lectura' | 'recordatorios' | 'canciones';
+
+export const SONG_CATEGORIES = ['adoracion', 'alabanza', 'himno', 'ministracion', 'jubilo'] as const;
+export type SongCategory = (typeof SONG_CATEGORIES)[number];
+
+export interface Song {
+  readonly id: string;
+  readonly title: string;
+  readonly artist: string;
+  readonly originalKey: string;
+  readonly capo?: number;
+  readonly bpm?: number;
+  readonly timeSignature?: string;
+  readonly category: SongCategory;
+  /** Letra con acordes en formato LaCuerda (línea superior) o ChordPro (`[G]Texto`). */
+  readonly content: string;
+  readonly bibleReference?: string;
+  readonly notes?: string;
+  readonly isBuiltIn?: boolean;
+  readonly createdAt: number;
+  readonly updatedAt: number;
+}
+
+export interface LampClubProgress {
+  readonly id: string;
+  readonly level: number;
+  readonly referenceLabel: string;
+  readonly completedAt: number;
+  readonly bestScore: number;
+  readonly translationId: TranslationId;
+}
 
 export interface ImportedFileMeta {
   readonly kind: ImportKind;

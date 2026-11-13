@@ -3,6 +3,7 @@ import { formatReference } from '@model/reference';
 import { useI18n } from '@ui/hooks/useI18n';
 import { NoteIcon, TrashIcon } from '@ui/components/icons';
 import { EmptyState } from '@ui/components/EmptyState';
+import { LinkedScriptureText, NoteCategoryBadge } from '@ui/components/NoteCategoryBadge';
 
 interface NotesPanelProps {
   readonly notes: readonly Note[];
@@ -13,7 +14,7 @@ interface NotesPanelProps {
 
 export function NotesPanel({ notes, onEdit, onDelete, onOpenVerse }: NotesPanelProps) {
   const { t, language } = useI18n();
-  const sorted = [...notes].sort((a, b) => a.reference.verse - b.reference.verse);
+  const sorted = [...notes].sort((a, b) => (a.reference?.verse ?? 0) - (b.reference?.verse ?? 0));
 
   return (
     <div>
@@ -25,16 +26,31 @@ export function NotesPanel({ notes, onEdit, onDelete, onOpenVerse }: NotesPanelP
         <ul className="mt-3 space-y-3">
           {sorted.map((note) => (
             <li key={note.id} className="rounded-xl border border-navy-900/10 bg-white/60 p-3 dark:border-parchment-100/10 dark:bg-navy-800/40">
-              <button
-                type="button"
-                className="text-left text-xs font-semibold text-ember-700 hover:underline dark:text-ember-300"
-                onClick={() => onOpenVerse(note)}
-              >
-                {formatReference(note.reference, language)} · {note.translationId}
-              </button>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-navy-800 dark:text-parchment-100">
-                {note.body}
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                {note.reference ? (
+                  <button
+                    type="button"
+                    className="text-left text-xs font-semibold text-ember-700 hover:underline dark:text-ember-300"
+                    onClick={() => onOpenVerse(note)}
+                  >
+                    {formatReference(note.reference, language)} · {note.translationId}
+                  </button>
+                ) : (
+                  <span className="text-xs font-semibold text-navy-500 dark:text-parchment-300/70">
+                    {t('notes.generalNote')}
+                  </span>
+                )}
+                <NoteCategoryBadge category={note.category} />
+              </div>
+              {note.title ? (
+                <p className="mt-1.5 font-serif text-sm font-semibold text-navy-900 dark:text-parchment-50">
+                  {note.title}
+                </p>
+              ) : null}
+              <LinkedScriptureText
+                text={note.body}
+                className="mt-2 text-sm leading-relaxed text-navy-800 dark:text-parchment-100"
+              />
               {note.tags.length > 0 ? (
                 <ul className="mt-2 flex flex-wrap gap-1.5">
                   {note.tags.map((tag) => (

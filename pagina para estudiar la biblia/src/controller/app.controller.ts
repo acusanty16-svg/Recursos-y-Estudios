@@ -10,8 +10,10 @@ import {
   getAllEvents,
   getAllHighlights,
   getAllImportedMeta,
+  getAllLampClub,
   getAllMemorizedVerses,
   getAllNotes,
+  getAllSongs,
   putEvent,
 } from './idb';
 import { loadPreferences, updatePreferences } from './preferences.controller';
@@ -46,11 +48,13 @@ export async function bootstrapApp(): Promise<void> {
   }));
 
   try {
-    const [notes, highlights, bookmarks, memorizedVerses, events, importedMeta] = await Promise.all([
+    const [notes, highlights, bookmarks, memorizedVerses, songs, lampClub, events, importedMeta] = await Promise.all([
       getAllNotes(),
       getAllHighlights(),
       getAllBookmarks(),
       getAllMemorizedVerses(),
+      getAllSongs(),
+      getAllLampClub(),
       getAllEvents(),
       getAllImportedMeta(),
     ]);
@@ -63,6 +67,8 @@ export async function bootstrapApp(): Promise<void> {
       highlights,
       bookmarks,
       memorizedVerses,
+      songs,
+      lampClub,
       events,
       importedMeta,
       streak,

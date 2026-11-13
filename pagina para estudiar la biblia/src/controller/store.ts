@@ -5,10 +5,12 @@ import type {
   Chapter,
   Highlight,
   ImportedFileMeta,
+  LampClubProgress,
   MemorizedVerse,
   Note,
   Preferences,
   ReadingEvent,
+  Song,
   StreakState,
   TranslationId,
 } from '../model/types';
@@ -59,6 +61,8 @@ export interface AppState {
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
   readonly memorizedVerses: readonly MemorizedVerse[];
+  readonly songs: readonly Song[];
+  readonly lampClub: readonly LampClubProgress[];
   readonly events: readonly ReadingEvent[];
   readonly importedMeta: readonly ImportedFileMeta[];
   readonly streak: StreakState;
@@ -89,6 +93,8 @@ const INITIAL_STATE: AppState = {
   highlights: [],
   bookmarks: [],
   memorizedVerses: [],
+  songs: [],
+  lampClub: [],
   events: [],
   importedMeta: [],
   streak: INITIAL_STREAK,

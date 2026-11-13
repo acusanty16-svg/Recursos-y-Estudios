@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "name": "Club de la Lámpara",
+  "levels": [
+    {
+      "level": 1,
+      "titleEs": "Primer Nivel",
+      "titleEn": "First Level",
+      "subtitleEs": "Fundamentos de la Palabra y la salvación",
+      "subtitleEn": "Foundations of the Word and salvation",
+      "verses": [
+        { "id": "lamp-1-1", "level": 1, "bookNumber": 19, "chapter": 119, "verseStart": 105, "verseEnd": 105, "referenceLabel": "Salmos 119:105" },
+        { "id": "lamp-1-2", "level": 1, "bookNumber": 43, "chapter": 3, "verseStart": 16, "verseEnd": 16, "referenceLabel": "San Juan 3:16" },
+        { "id": "lamp-1-3", "level": 1, "bookNumber": 45, "chapter": 3, "verseStart": 23, "verseEnd": 23, "referenceLabel": "Romanos 3:23" },
+        { "id": "lamp-1-4", "level": 1, "bookNumber": 45, "chapter": 5, "verseStart": 8, "verseEnd": 8, "referenceLabel": "Romanos 5:8" },
+        { "id": "lamp-1-5", "level": 1, "bookNumber": 45, "chapter": 6, "verseStart": 23, "verseEnd": 23, "referenceLabel": "Romanos 6:23" },
+        { "id": "lamp-1-6", "level": 1, "bookNumber": 58, "chapter": 4, "verseStart": 12, "verseEnd": 12, "referenceLabel": "Hebreos 4:12" },
+        { "id": "lamp-1-7", "level": 1, "bookNumber": 43, "chapter": 11, "verseStart": 35, "verseEnd": 35, "referenceLabel": "San Juan 11:35" },
+        { "id": "lamp-1-8", "level": 1, "bookNumber": 19, "chapter": 23, "verseStart": 1, "verseEnd": 3, "referenceLabel": "Salmos 23:1-3" }
+      ]
+    },
+    {
+      "level": 2,
+      "titleEs": "Segundo Nivel",
+      "titleEn": "Second Level",
+      "subtitleEs": "Gracia, adoración y testimonio joven",
+      "subtitleEn": "Grace, worship, and youthful testimony",
+      "verses": [
+        { "id": "lamp-2-1", "level": 2, "bookNumber": 19, "chapter": 23, "verseStart": 4, "verseEnd": 6, "referenceLabel": "Salmos 23:4-6" },
+        { "id": "lamp-2-2", "level": 2, "bookNumber": 43, "chapter": 5, "verseStart": 39, "verseEnd": 39, "referenceLabel": "San Juan 5:39" },
+        { "id": "lamp-2-3", "level": 2, "bookNumber": 43, "chapter": 1, "verseStart": 1, "verseEnd": 1, "referenceLabel": "San Juan 1:1" },
+        { "id": "lamp-2-4", "level": 2, "bookNumber": 14, "chapter": 7, "verseStart": 14, "verseEnd": 14, "referenceLabel": "2 Crónicas 7:14" },
+        { "id": "lamp-2-5", "level": 2, "bookNumber": 43, "chapter": 1, "verseStart": 12, "verseEnd": 12, "referenceLabel": "San Juan 1:12" },
+        { "id": "lamp-2-6", "level": 2, "bookNumber": 58, "chapter": 13, "verseStart": 15, "verseEnd": 15, "referenceLabel": "Hebreos 13:15" },
+        { "id": "lamp-2-7", "level": 2, "bookNumber": 54, "chapter": 4, "verseStart": 12, "verseEnd": 12, "referenceLabel": "1 Timoteo 4:12" },
+        { "id": "lamp-2-8", "level": 2, "bookNumber": 49, "chapter": 2, "verseStart": 8, "verseEnd": 8, "referenceLabel": "Efesios 2:8" }
+      ]
+    },
+    {
+      "level": 3,
+      "titleEs": "Tercer Nivel",
+      "titleEn": "Third Level",
+      "subtitleEs": "Fe, oración y victoria en Cristo",
+      "subtitleEn": "Faith, prayer, and victory in Christ",
+      "verses": [
+        { "id": "lamp-3-1", "level": 3, "bookNumber": 49, "chapter": 2, "verseStart": 9, "verseEnd": 9, "referenceLabel": "Efesios 2:9" },
+        { "id": "lamp-3-2", "level": 3, "bookNumber": 60, "chapter": 5, "verseStart": 8, "verseEnd": 8, "referenceLabel": "1 Pedro 5:8" },
+        { "id": "lamp-3-3", "level": 3, "bookNumber": 45, "chapter": 10, "verseStart": 9, "verseEnd": 9, "referenceLabel": "Romanos 10:9" },
+        { "id": "lamp-3-4", "level": 3, "bookNumber": 45, "chapter": 10, "verseStart": 10, "verseEnd": 10, "referenceLabel": "Romanos 10:10" },
+        { "id": "lamp-3-5", "level": 3, "bookNumber": 62, "chapter": 5, "verseStart": 14, "verseEnd": 15, "referenceLabel": "1 Juan 5:14-15" },
+        { "id": "lamp-3-6", "level": 3, "bookNumber": 19, "chapter": 37, "verseStart": 4, "verseEnd": 5, "referenceLabel": "Salmos 37:4-5" },
+        { "id": "lamp-3-7", "level": 3, "bookNumber": 45, "chapter": 8, "verseStart": 28, "verseEnd": 28, "referenceLabel": "Romanos 8:28" },
+        { "id": "lamp-3-8", "level": 3, "bookNumber": 46, "chapter": 10, "verseStart": 13, "verseEnd": 13, "referenceLabel": "1 Corintios 10:13" }
+      ]
+    },
+    {
+      "level": 4,
+      "titleEs": "Cuarto Nivel",
+      "titleEn": "Fourth Level",
+      "subtitleEs": "Sabiduría, obediencia y fortaleza",
+      "subtitleEn": "Wisdom, obedience, and strength",
+      "verses": [
+        { "id": "lamp-4-1", "level": 4, "bookNumber": 21, "chapter": 12, "verseStart": 1, "verseEnd": 1, "referenceLabel": "Eclesiastés 12:1" },
+        { "id": "lamp-4-2", "level": 4, "bookNumber": 58, "chapter": 11, "verseStart": 1, "verseEnd": 1, "referenceLabel": "Hebreos 11:1" },
+        { "id": "lamp-4-3", "level": 4, "bookNumber": 21, "chapter": 5, "verseStart": 4, "verseEnd": 4, "referenceLabel": "Eclesiastés 5:4" },
+        { "id": "lamp-4-4", "level": 4, "bookNumber": 41, "chapter": 12, "verseStart": 30, "verseEnd": 31, "referenceLabel": "San Marcos 12:30-31" },
+        { "id": "lamp-4-5", "level": 4, "bookNumber": 19, "chapter": 4, "verseStart": 8, "verseEnd": 8, "referenceLabel": "Salmos 4:8" },
+        { "id": "lamp-4-6", "level": 4, "bookNumber": 23, "chapter": 40, "verseStart": 30, "verseEnd": 31, "referenceLabel": "Isaías 40:30-31" },
+        { "id": "lamp-4-7", "level": 4, "bookNumber": 6, "chapter": 1, "verseStart": 8, "verseEnd": 8, "referenceLabel": "Josué 1:8" },
+        { "id": "lamp-4-8", "level": 4, "bookNumber": 20, "chapter": 16, "verseStart": 25, "verseEnd": 25, "referenceLabel": "Proverbios 16:25" }
+      ]
+    },
+    {
+      "level": 5,
+      "titleEs": "Quinto Nivel",
+      "titleEn": "Fifth Level",
+      "subtitleEs": "Misión, vigilancia y vida del Espíritu",
+      "subtitleEn": "Mission, watchfulness, and life in the Spirit",
+      "verses": [
+        { "id": "lamp-5-1", "level": 5, "bookNumber": 58, "chapter": 13, "verseStart": 17, "verseEnd": 17, "referenceLabel": "Hebreos 13:17" },
+        { "id": "lamp-5-2", "level": 5, "bookNumber": 49, "chapter": 4, "verseStart": 27, "verseEnd": 27, "referenceLabel": "Efesios 4:27" },
+        { "id": "lamp-5-3", "level": 5, "bookNumber": 40, "chapter": 26, "verseStart": 41, "verseEnd": 41, "referenceLabel": "Mateo 26:41" },
+        { "id": "lamp-5-4", "level": 5, "bookNumber": 40, "chapter": 28, "verseStart": 19, "verseEnd": 19, "referenceLabel": "Mateo 28:19" },
+        { "id": "lamp-5-5", "level": 5, "bookNumber": 43, "chapter": 6, "verseStart": 48, "verseEnd": 48, "referenceLabel": "Juan 6:48" },
+        { "id": "lamp-5-6", "level": 5, "bookNumber": 44, "chapter": 1, "verseStart": 8, "verseEnd": 8, "referenceLabel": "Hechos 1:8" },
+        { "id": "lamp-5-7", "level": 5, "bookNumber": 44, "chapter": 16, "verseStart": 31, "verseEnd": 31, "referenceLabel": "Hechos 16:31" },
+        { "id": "lamp-5-8", "level": 5, "bookNumber": 47, "chapter": 2, "verseStart": 11, "verseEnd": 11, "referenceLabel": "2 Corintios 2:11" }
+      ]
+    },
+    {
+      "level": 6,
+      "titleEs": "Sexto Nivel",
+      "titleEn": "Sixth Level",
+      "subtitleEs": "Madurez cristiana, iglesia y descanso en Jesús",
+      "subtitleEn": "Christian maturity, church, and rest in Jesus",
+      "verses": [
+        { "id": "lamp-6-1", "level": 6, "bookNumber": 48, "chapter": 6, "verseStart": 7, "verseEnd": 7, "referenceLabel": "Gálatas 6:7" },
+        { "id": "lamp-6-2", "level": 6, "bookNumber": 50, "chapter": 2, "verseStart": 13, "verseEnd": 13, "referenceLabel": "Filipenses 2:13" },
+        { "id": "lamp-6-3", "level": 6, "bookNumber": 55, "chapter": 3, "verseStart": 16, "verseEnd": 17, "referenceLabel": "2 Timoteo 3:16-17" },
+        { "id": "lamp-6-4", "level": 6, "bookNumber": 58, "chapter": 10, "verseStart": 25, "verseEnd": 25, "referenceLabel": "Hebreos 10:25" },
+        { "id": "lamp-6-5", "level": 6, "bookNumber": 58, "chapter": 13, "verseStart": 1, "verseEnd": 1, "referenceLabel": "Hebreos 13:1" },
+        { "id": "lamp-6-6", "level": 6, "bookNumber": 60, "chapter": 2, "verseStart": 9, "verseEnd": 9, "referenceLabel": "1 Pedro 2:9" },
+        { "id": "lamp-6-7", "level": 6, "bookNumber": 24, "chapter": 33, "verseStart": 3, "verseEnd": 3, "referenceLabel": "Jeremías 33:3" },
+        { "id": "lamp-6-8", "level": 6, "bookNumber": 40, "chapter": 11, "verseStart": 28, "verseEnd": 28, "referenceLabel": "Mateo 11:28" }
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ import { useReadingPosition } from '@ui/hooks/useReadingPosition';
 import { RefreshIcon } from '@ui/components/icons';
 import { ChapterReader } from '@ui/reader/ChapterReader';
 import { NoteDialog } from '@ui/reader/NoteDialog';
-import { NoteEditor } from '@ui/reader/NoteEditor';
+import { NoteEditor, type NoteEditorPayload } from '@ui/reader/NoteEditor';
 import { NotesDrawer } from '@ui/reader/NotesDrawer';
 import { ReaderSkeleton } from '@ui/reader/ReaderSkeleton';
 import { ReaderToolbar } from '@ui/reader/ReaderToolbar';
@@ -36,7 +36,7 @@ import { ReferenceDialog } from '@ui/reader/ReferenceDialog';
 
 interface DialogState {
   readonly mode: 'create' | 'edit';
-  readonly reference: VerseReference;
+  readonly reference?: VerseReference;
   readonly note?: Note;
 }
 
@@ -52,6 +52,7 @@ export function ReaderPage() {
   const [referenceOpen, setReferenceOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [pendingVerse, setPendingVerse] = useState<number | null>(null);
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
 
   const { bookNumber, chapter: chapterNumber } = state.location;
   const activeTranslation = state.preferences.activeTranslation;
@@ -82,7 +83,10 @@ export function ReaderPage() {
   const chapterNotes = useMemo(
     () =>
       state.notes.filter(
-        (note) => note.reference.bookNumber === bookNumber && note.reference.chapter === chapterNumber,
+        (note) =>
+          note.reference !== undefined &&
+          note.reference.bookNumber === bookNumber &&
+          note.reference.chapter === chapterNumber,
       ),
     [state.notes, bookNumber, chapterNumber],
   );
@@ -116,10 +120,25 @@ export function ReaderPage() {
   }, [routerLocation, navigate]);
 
   useEffect(() => {
+    setSelectedVerse(null);
+  }, [bookNumber, chapterNumber]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape' && !dialog && !referenceOpen && !notesOpen) {
+        setSelectedVerse(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [dialog, referenceOpen, notesOpen]);
+
+  useEffect(() => {
     if (pendingVerse === null || !chapter) return;
 
     const timer = window.setTimeout(() => {
       scrollToVerse(pendingVerse);
+      setSelectedVerse(pendingVerse);
       setPendingVerse(null);
     }, 140);
 
@@ -135,6 +154,14 @@ export function ReaderPage() {
   const handleSelectTranslation = (translationId: TranslationId): void => {
     setPendingVerse(null);
     setTranslation(translationId);
+  };
+
+  const handleSwapTranslations = (): void => {
+    if (!compareTranslation) return;
+    const nextActive = compareTranslation;
+    setPendingVerse(null);
+    setTranslation(nextActive);
+    setCompareTranslation(activeTranslation);
   };
 
   const handlePrevChapter = (): void => {
@@ -153,7 +180,11 @@ export function ReaderPage() {
 
   const openEdit = useCallback((note: Note): void => {
     setNotesOpen(false);
-    setDialog({ mode: 'edit', reference: note.reference, note });
+    setDialog({
+      mode: 'edit',
+      note,
+      ...(note.reference ? { reference: note.reference } : {}),
+    });
   }, []);
 
   const handleCopy = useCallback(
@@ -184,16 +215,27 @@ export function ReaderPage() {
     [activeTranslation],
   );
 
-  const handleSave = (body: string, tags: readonly string[]): void => {
+  const handleSave = (payload: NoteEditorPayload): void => {
     if (!dialog) return;
-    const sanitized = sanitizeTags(tags.join(','));
+    const sanitized = sanitizeTags(payload.tags.join(','));
     if (dialog.mode === 'edit' && dialog.note) {
-      void updateNote(dialog.note.id, { body, tags: sanitized });
+      void updateNote(dialog.note.id, {
+        category: payload.category,
+        title: payload.title,
+        speaker: payload.speaker,
+        eventDate: payload.eventDate,
+        body: payload.body,
+        tags: sanitized,
+      });
     } else {
       void createNote({
-        reference: dialog.reference,
+        category: payload.category,
+        ...(payload.title ? { title: payload.title } : {}),
+        ...(payload.speaker ? { speaker: payload.speaker } : {}),
+        ...(payload.eventDate ? { eventDate: payload.eventDate } : {}),
+        ...(dialog.reference ? { reference: dialog.reference } : {}),
         translationId: activeTranslation,
-        body,
+        body: payload.body,
         tags: sanitized,
       });
     }
@@ -202,8 +244,10 @@ export function ReaderPage() {
 
   const handleOpenVerse = (note: Note): void => {
     setNotesOpen(false);
+    if (!note.reference) return;
     if (note.reference.bookNumber === bookNumber && note.reference.chapter === chapterNumber) {
       scrollToVerse(note.reference.verse);
+      setSelectedVerse(note.reference.verse);
       return;
     }
     setPendingVerse(note.reference.verse);
@@ -229,7 +273,11 @@ export function ReaderPage() {
         onOpenNotes={() => setNotesOpen(true)}
         onSelectTranslation={handleSelectTranslation}
         onCompare={setCompareTranslation}
-        onJumpToVerse={scrollToVerse}
+        onSwapTranslations={handleSwapTranslations}
+        onJumpToVerse={(verse) => {
+          scrollToVerse(verse);
+          setSelectedVerse(verse);
+        }}
         onPrevChapter={handlePrevChapter}
         onNextChapter={handleNextChapter}
         onFocus={() => updatePreferences({ focusMode: true })}
@@ -277,6 +325,8 @@ export function ReaderPage() {
             comparison={showComparison && comparisonReady ? comparisonChapter : null}
             comparisonTranslation={showComparison && comparisonReady ? compareTranslation : null}
             activeVerse={readingPosition.activeVerse}
+            selectedVerse={selectedVerse}
+            onSelectVerse={(verse) => setSelectedVerse((prev) => (prev === verse ? null : verse))}
             notes={state.notes}
             highlights={state.highlights}
             bookmarks={state.bookmarks}
@@ -317,8 +367,13 @@ export function ReaderPage() {
           onClose={() => setDialog(null)}
         >
           <NoteEditor
+            initialCategory={dialog.note?.category ?? 'verse'}
+            initialTitle={dialog.note?.title ?? ''}
+            initialSpeaker={dialog.note?.speaker ?? ''}
             initialBody={dialog.note?.body ?? ''}
             initialTags={dialog.note?.tags ?? []}
+            {...(dialog.note?.eventDate ? { initialDate: dialog.note.eventDate } : {})}
+            {...(dialog.reference ? { initialReference: dialog.reference } : {})}
             onSave={handleSave}
             onCancel={() => setDialog(null)}
           />

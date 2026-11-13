@@ -9,6 +9,8 @@ interface ChapterReaderProps {
   readonly comparison: Chapter | null;
   readonly comparisonTranslation: TranslationId | null;
   readonly activeVerse: number;
+  readonly selectedVerse: number | null;
+  readonly onSelectVerse: (verseNumber: number) => void;
   readonly notes: readonly Note[];
   readonly highlights: readonly Highlight[];
   readonly bookmarks: readonly Bookmark[];
@@ -32,6 +34,8 @@ export const ChapterReader = memo(function ChapterReader({
   comparison,
   comparisonTranslation,
   activeVerse,
+  selectedVerse,
+  onSelectVerse,
   notes,
   highlights,
   bookmarks,
@@ -56,6 +60,7 @@ export const ChapterReader = memo(function ChapterReader({
     const map = new Map<number, Note>();
     for (const note of notes) {
       if (
+        note.reference &&
         note.reference.bookNumber === chapter.bookNumber &&
         note.reference.chapter === chapter.chapter &&
         note.translationId === chapter.translationId
@@ -129,9 +134,9 @@ export const ChapterReader = memo(function ChapterReader({
       </header>
 
       {comparisonTranslation ? (
-        <div className="mb-2 hidden items-center gap-6 md:grid md:grid-cols-2">
-          <span className="sv-column-label pl-8">{chapter.translationId}</span>
-          <span className="sv-column-label pl-4 text-sky-700 dark:text-sky-300">
+        <div className="mb-3 hidden items-center gap-6 border-b border-navy-900/10 pb-2 md:grid md:grid-cols-2 dark:border-parchment-100/10">
+          <span className="sv-column-label pl-9">{chapter.translationId}</span>
+          <span className="sv-column-label pl-3.5 text-ember-700 dark:text-ember-400">
             {comparisonTranslation}
           </span>
         </div>
@@ -151,6 +156,8 @@ export const ChapterReader = memo(function ChapterReader({
               reference={reference}
               translationId={chapter.translationId}
               active={verse.number === activeVerse}
+              selected={verse.number === selectedVerse}
+              onSelect={() => onSelectVerse(verse.number)}
               note={noteByVerse.get(verse.number)}
               highlight={highlightByVerse.get(verse.number)}
               bookmark={bookmarkByVerse.get(verse.number)}

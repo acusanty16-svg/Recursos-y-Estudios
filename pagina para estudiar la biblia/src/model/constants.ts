@@ -61,10 +61,10 @@ export const STORAGE_KEYS = {
 
 /** Nombre y versión de la base IndexedDB. */
 export const DB_NAME = 'santis-versicles';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 /** Límites de dominio. */
-export const MAX_NOTE_LENGTH = 5000;
+export const MAX_NOTE_LENGTH = 20000;
 export const MAX_TAGS_PER_NOTE = 8;
 export const MAX_TAG_LENGTH = 24;
 export const MAX_IMPORT_BYTES = 25 * 1024 * 1024;
@@ -79,6 +79,7 @@ export const ROUTES = {
   dashboard: '/',
   reader: '/leer',
   notes: '/notas',
+  music: '/musica',
   import: '/importar',
   api: '/api',
   settings: '/ajustes',

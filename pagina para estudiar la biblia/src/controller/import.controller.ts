@@ -1,7 +1,8 @@
 import { appError, errorMessage, type AppError, type Result } from '../model/errors';
 import type { ImportKind, ImportedFileMeta } from '../model/types';
 import { translate } from '../i18n';
-import { validateReadingPlans, validateReminders, validateVersiculos } from '../rsc';
+import { validateReadingPlans, validateReminders, validateSongsFile, validateVersiculos } from '../rsc';
+import { importSongsBatch } from './music.controller';
 import {
   deleteFileHandle,
   getFileHandle,
@@ -40,6 +41,10 @@ const VALIDATORS: Record<ImportKind, { validate: Validator; count: (value: unkno
   recordatorios: {
     validate: (input) => validateReminders(input),
     count: (value) => countArrayProp(value, 'reminders'),
+  },
+  canciones: {
+    validate: (input) => validateSongsFile(input),
+    count: (value) => countArrayProp(value, 'songs'),
   },
 };
 
@@ -122,6 +127,11 @@ export async function importResource(kind: ImportKind): Promise<Result<ImportOut
     ...state,
     importedMeta: [...state.importedMeta.filter((item) => item.kind !== kind), meta],
   }));
+
+  if (kind === 'canciones') {
+    const songsParsed = validateSongsFile(validated.value.value);
+    if (songsParsed.ok) await importSongsBatch(songsParsed.value.songs);
+  }
 
   showToast(translate(language, 'import.success'), 'success');
   return { ok: true, value: { kind, fileName: meta.fileName, itemCount: meta.itemCount } };
@@ -207,6 +217,11 @@ async function processHandle(
     ...state,
     importedMeta: [...state.importedMeta.filter((item) => item.kind !== kind), meta],
   }));
+
+  if (kind === 'canciones') {
+    const songsParsed = validateSongsFile(validated.value.value);
+    if (songsParsed.ok) await importSongsBatch(songsParsed.value.songs);
+  }
 
   showToast(translate(language, 'import.success'), 'success');
   return { ok: true, value: { kind, fileName: meta.fileName, itemCount: meta.itemCount } };

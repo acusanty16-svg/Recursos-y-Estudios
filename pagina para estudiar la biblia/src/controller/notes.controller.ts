@@ -6,6 +6,7 @@ import type {
   HighlightColor,
   MemorizedVerse,
   Note,
+  NoteCategory,
   TranslationId,
   VerseReference,
 } from '../model/types';
@@ -50,6 +51,7 @@ export function findNoteForVerse(
 ): Note | undefined {
   return notes.find(
     (note) =>
+      note.reference !== undefined &&
       note.translationId === translationId &&
       note.reference.bookNumber === reference.bookNumber &&
       note.reference.chapter === reference.chapter &&
@@ -93,24 +95,43 @@ export function findMemorizedForVerse(
   );
 }
 
-export async function createNote(input: {
-  readonly reference: VerseReference;
+export interface CreateNoteInput {
+  readonly category?: NoteCategory;
+  readonly title?: string;
+  readonly speaker?: string;
+  readonly eventDate?: string;
+  readonly reference?: VerseReference;
+  readonly linkedReferences?: readonly VerseReference[];
   readonly translationId: TranslationId;
   readonly body: string;
   readonly tags: readonly string[];
-}): Promise<Note | null> {
+}
+
+export async function createNote(input: CreateNoteInput): Promise<Note | null> {
   const body = input.body.trim().slice(0, MAX_NOTE_LENGTH);
   if (body.length === 0) return null;
 
   const now = Date.now();
+  const title = input.title?.trim();
+  const speaker = input.speaker?.trim();
+  const eventDate = input.eventDate?.trim();
+  const category = input.category ?? (input.reference ? 'verse' : 'study');
+
   const note: Note = {
     id: newId(),
-    reference: input.reference,
+    category,
     translationId: input.translationId,
     body,
     tags: input.tags.slice(0, MAX_TAGS_PER_NOTE),
     createdAt: now,
     updatedAt: now,
+    ...(title ? { title } : {}),
+    ...(speaker ? { speaker } : {}),
+    ...(eventDate ? { eventDate } : {}),
+    ...(input.reference ? { reference: input.reference } : {}),
+    ...(input.linkedReferences && input.linkedReferences.length > 0
+      ? { linkedReferences: input.linkedReferences }
+      : {}),
   };
 
   try {
@@ -125,10 +146,18 @@ export async function createNote(input: {
   return note;
 }
 
-export async function updateNote(
-  id: string,
-  patch: { readonly body: string; readonly tags: readonly string[] },
-): Promise<void> {
+export interface UpdateNotePatch {
+  readonly category?: NoteCategory;
+  readonly title?: string | undefined;
+  readonly speaker?: string | undefined;
+  readonly eventDate?: string | undefined;
+  readonly reference?: VerseReference | undefined;
+  readonly linkedReferences?: readonly VerseReference[];
+  readonly body: string;
+  readonly tags: readonly string[];
+}
+
+export async function updateNote(id: string, patch: UpdateNotePatch): Promise<void> {
   const { notes } = appStore.getState();
   const existing = notes.find((note) => note.id === id);
   if (!existing) return;
@@ -139,11 +168,29 @@ export async function updateNote(
     return;
   }
 
+  const nextCategory = patch.category ?? existing.category ?? 'verse';
+  const nextTitle = patch.title !== undefined ? patch.title.trim() : existing.title;
+  const nextSpeaker = patch.speaker !== undefined ? patch.speaker.trim() : existing.speaker;
+  const nextDate = patch.eventDate !== undefined ? patch.eventDate.trim() : existing.eventDate;
+  const nextRef = patch.reference !== undefined ? patch.reference : existing.reference;
+
   const updated: Note = {
-    ...existing,
+    id: existing.id,
+    category: nextCategory,
+    translationId: existing.translationId,
     body,
     tags: patch.tags.slice(0, MAX_TAGS_PER_NOTE),
+    createdAt: existing.createdAt,
     updatedAt: Date.now(),
+    ...(nextTitle ? { title: nextTitle } : {}),
+    ...(nextSpeaker ? { speaker: nextSpeaker } : {}),
+    ...(nextDate ? { eventDate: nextDate } : {}),
+    ...(nextRef ? { reference: nextRef } : {}),
+    ...(patch.linkedReferences && patch.linkedReferences.length > 0
+      ? { linkedReferences: patch.linkedReferences }
+      : existing.linkedReferences && existing.linkedReferences.length > 0
+        ? { linkedReferences: existing.linkedReferences }
+        : {}),
   };
 
   try {
@@ -332,9 +379,16 @@ export function buildMarkdownExport(): string {
   ];
 
   const sortedNotes = [...notes].sort((a, b) => {
-    if (a.reference.bookNumber !== b.reference.bookNumber) return a.reference.bookNumber - b.reference.bookNumber;
-    if (a.reference.chapter !== b.reference.chapter) return a.reference.chapter - b.reference.chapter;
-    return a.reference.verse - b.reference.verse;
+    const refA = a.reference;
+    const refB = b.reference;
+    if (refA && refB) {
+      if (refA.bookNumber !== refB.bookNumber) return refA.bookNumber - refB.bookNumber;
+      if (refA.chapter !== refB.chapter) return refA.chapter - refB.chapter;
+      return refA.verse - refB.verse;
+    }
+    if (refA) return 1;
+    if (refB) return -1;
+    return b.updatedAt - a.updatedAt;
   });
 
   lines.push(`## ${translate(language, 'notes.tabNotes')}`, '');
@@ -342,9 +396,20 @@ export function buildMarkdownExport(): string {
     lines.push(`_${translate(language, 'reader.noNotes')}_`, '');
   }
   for (const note of sortedNotes) {
-    const book = getBookByNumber(note.reference.bookNumber);
-    lines.push(`### ${formatCitation(note.reference, note.translationId, language)}`);
-    if (book) lines.push(`*${book.nameEs} ${note.reference.chapter}*`);
+    const category = note.category ?? 'verse';
+    const headingParts: string[] = [];
+    if (note.title) headingParts.push(note.title);
+    if (note.reference) headingParts.push(formatCitation(note.reference, note.translationId, language));
+    const heading = headingParts.length > 0 ? headingParts.join(' · ') : `[${category.toUpperCase()}]`;
+    lines.push(`### ${heading}`);
+    const meta: string[] = [`[${category}]`];
+    if (note.speaker) meta.push(note.speaker);
+    if (note.eventDate) meta.push(note.eventDate);
+    if (note.reference) {
+      const book = getBookByNumber(note.reference.bookNumber);
+      if (book) meta.push(`${book.nameEs} ${note.reference.chapter}`);
+    }
+    if (meta.length > 0) lines.push(`*${meta.join(' · ')}*`);
     lines.push('', note.body, '');
     if (note.tags.length > 0) lines.push(`\`${note.tags.join('` `')}\``, '');
   }

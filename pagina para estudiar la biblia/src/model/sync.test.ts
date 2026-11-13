@@ -10,7 +10,7 @@ import {
   pruneTombstones,
 } from './sync';
 import type { SyncSnapshot } from './sync';
-import type { MemorizedVerse, Note } from './types';
+import type { LampClubProgress, MemorizedVerse, Note, Song } from './types';
 
 const REFERENCE = { bookNumber: 43, chapter: 3, verse: 16 };
 
@@ -158,5 +158,74 @@ describe('parseSnapshot', () => {
 
     expect(parsed?.notes).toHaveLength(1);
     expect(parsed?.notes[0]?.id).toBe('good');
+  });
+
+  it('mantiene compatibilidad con snapshots antiguos y sincroniza canciones, notas de prédica y Club de la Lámpara', () => {
+    const sermonNote: Note = {
+      id: 'sermon-1',
+      category: 'sermon',
+      title: 'La Gracia Soberana',
+      speaker: 'Pastor Juan',
+      eventDate: '2026-11-10',
+      translationId: 'RV1960',
+      body: 'Ver Efesios 2:8-9.',
+      tags: ['gracia'],
+      createdAt: 1000,
+      updatedAt: 2000,
+    };
+
+    const customSong: Song = {
+      id: 'song-custom-1',
+      title: 'Sublime Gracia',
+      artist: 'Himno',
+      originalKey: 'G',
+      category: 'himno',
+      content: 'G         C\nSublime gracia del Señor',
+      isBuiltIn: false,
+      createdAt: 1000,
+      updatedAt: 2500,
+    };
+
+    const lampEntry: LampClubProgress = {
+      id: 'lamp-l1-v1',
+      level: 1,
+      referenceLabel: 'Juan 3:16',
+      completedAt: 3000,
+      bestScore: 100,
+      translationId: 'RV1960',
+    };
+
+    const snap = buildSnapshot(
+      {
+        notes: [sermonNote],
+        highlights: [],
+        bookmarks: [],
+        memorizedVerses: [],
+        songs: [customSong],
+        lampClub: [lampEntry],
+      },
+      createEmptyTombstones(),
+      4000,
+    );
+
+    const roundTrip = parseSnapshotJson(JSON.stringify(snap));
+    expect(roundTrip?.notes[0]?.category).toBe('sermon');
+    expect(roundTrip?.notes[0]?.speaker).toBe('Pastor Juan');
+    expect(roundTrip?.notes[0]?.reference).toBeUndefined();
+    expect(roundTrip?.songs[0]?.title).toBe('Sublime Gracia');
+    expect(roundTrip?.lampClub[0]?.level).toBe(1);
+
+    // Snapshot v1 antiguo sin campos `songs` ni `lampClub`:
+    const legacy = parseSnapshot({
+      version: 1,
+      updatedAt: 1000,
+      notes: [note('old-1', 'Nota antigua', 1000)],
+      highlights: [],
+      bookmarks: [],
+      memorizedVerses: [],
+      tombstones: createEmptyTombstones(),
+    });
+    expect(legacy?.songs).toEqual([]);
+    expect(legacy?.lampClub).toEqual([]);
   });
 });

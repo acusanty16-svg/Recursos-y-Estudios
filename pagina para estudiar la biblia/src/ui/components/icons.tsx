@@ -219,3 +219,66 @@ export const ExternalIcon = (props: IconProps) => (
     <path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
   </Base>
 );
+
+export const MusicIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
+  </Base>
+);
+
+export const MicIcon = (props: IconProps) => (
+  <Base {...props}>
+    <rect x="9" y="2" width="6" height="11" rx="3" />
+    <path d="M5 10a7 7 0 0 0 14 0M12 17v4M8 21h8" />
+  </Base>
+);
+
+export const GraduationIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="m22 10-10-5-10 5 10 5 10-5Z" />
+    <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5" />
+  </Base>
+);
+
+export const HeartIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  </Base>
+);
+
+export const ShareIcon = (props: IconProps) => (
+  <Base {...props}>
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+  </Base>
+);
+
+export const VolumeIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+    <path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" />
+  </Base>
+);
+
+export const PlayIcon = (props: IconProps) => (
+  <Base {...props}>
+    <polygon points="6 4 20 12 6 20 6 4" />
+  </Base>
+);
+
+export const PauseIcon = (props: IconProps) => (
+  <Base {...props}>
+    <rect x="6" y="4" width="4" height="16" />
+    <rect x="14" y="4" width="4" height="16" />
+  </Base>
+);
+
+export const CommandIcon = (props: IconProps) => (
+  <Base {...props}>
+    <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3Z" />
+  </Base>
+);
