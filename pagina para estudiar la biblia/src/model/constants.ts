@@ -57,11 +57,12 @@ export const STORAGE_KEYS = {
   streak: 'sv.streak.v1',
   onboarding: 'sv.onboarding.v1',
   syncTombstones: 'sv.sync.tombstones.v1',
+  yearPlanStart: 'sv.yearPlanStart.v1',
 } as const;
 
 /** Nombre y versión de la base IndexedDB. */
 export const DB_NAME = 'santis-versicles';
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 /** Límites de dominio. */
 export const MAX_NOTE_LENGTH = 20000;
@@ -78,6 +79,7 @@ export const BIBLE_API_CHAPTER_PATH = '/get-chapter';
 export const ROUTES = {
   dashboard: '/',
   reader: '/leer',
+  plan: '/plan',
   notes: '/notas',
   music: '/musica',
   import: '/importar',

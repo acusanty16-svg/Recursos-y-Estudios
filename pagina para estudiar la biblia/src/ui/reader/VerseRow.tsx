@@ -4,7 +4,7 @@ import type { VerseReference } from '@model/types';
 import { formatCitation } from '@model/reference';
 import { useI18n } from '@ui/hooks/useI18n';
 import { LinkedScriptureText, NoteCategoryBadge } from '@ui/components/NoteCategoryBadge';
-import { BookmarkIcon, CopyIcon, HighlighterIcon, MemorizeIcon, NoteIcon } from '@ui/components/icons';
+import { BookIcon, BookmarkIcon, CopyIcon, HighlighterIcon, MemorizeIcon, NoteIcon } from '@ui/components/icons';
 
 const HIGHLIGHT_CLASSES: Record<HighlightColor, string> = {
   gold: 'sv-hl-gold',
@@ -41,6 +41,7 @@ interface VerseRowProps {
   readonly onHighlight: (color: HighlightColor) => void;
   readonly onAddNote: () => void;
   readonly onEditNote: (note: Note) => void;
+  readonly onOpenCommentary?: (() => void) | undefined;
 }
 
 export function VerseRow({
@@ -62,6 +63,7 @@ export function VerseRow({
   onHighlight,
   onAddNote,
   onEditNote,
+  onOpenCommentary,
 }: VerseRowProps) {
   const { t, language } = useI18n();
   const highlightClass = highlight ? HIGHLIGHT_CLASSES[highlight.color] : '';
@@ -233,6 +235,17 @@ export function VerseRow({
                 <NoteIcon size={13} />
                 <span>{note ? t('notes.edit') : t('reader.addNote')}</span>
               </button>
+
+              {onOpenCommentary ? (
+                <button
+                  type="button"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-navy-900/10 bg-white/80 px-2.5 text-xs font-medium text-ember-700 transition hover:border-ember-600/40 dark:border-parchment-100/10 dark:bg-navy-900 dark:text-ember-300"
+                  onClick={onOpenCommentary}
+                >
+                  <BookIcon size={13} />
+                  <span>{t('commentary.openVerse')}</span>
+                </button>
+              ) : null}
             </div>
           </motion.div>
         ) : null}

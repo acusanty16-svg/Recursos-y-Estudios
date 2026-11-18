@@ -24,6 +24,7 @@ interface ReaderToolbarProps {
   readonly notesCount: number;
   readonly onOpenReference: () => void;
   readonly onOpenNotes: () => void;
+  readonly onOpenCommentary?: (() => void) | undefined;
   readonly onSelectTranslation: (translationId: TranslationId) => void;
   readonly onCompare: (translationId: TranslationId | null) => void;
   readonly onSwapTranslations?: (() => void) | undefined;
@@ -43,6 +44,7 @@ export function ReaderToolbar({
   notesCount,
   onOpenReference,
   onOpenNotes,
+  onOpenCommentary,
   onSelectTranslation,
   onCompare,
   onSwapTranslations,
@@ -167,6 +169,19 @@ export function ReaderToolbar({
         </div>
 
         <div className="ml-auto flex items-center gap-1">
+          {onOpenCommentary ? (
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-ember-700 transition-colors hover:bg-ember-500/10 dark:text-ember-300 dark:hover:bg-ember-400/10"
+              onClick={onOpenCommentary}
+              aria-label={t('commentary.tabHenry')}
+              title={t('commentary.tabHenry')}
+            >
+              <BookIcon size={17} />
+              <span className="hidden md:inline text-xs font-semibold">{t('commentary.openVerse')}</span>
+            </button>
+          ) : null}
+
           <button
             type="button"
             className="relative inline-flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-navy-600 transition-colors hover:bg-navy-900/5 hover:text-navy-900 dark:text-parchment-200/80 dark:hover:bg-parchment-100/10 dark:hover:text-parchment-50"

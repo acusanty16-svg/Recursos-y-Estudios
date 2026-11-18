@@ -27,6 +27,7 @@ interface ChapterReaderProps {
   ) => void;
   readonly onAddNote: (reference: { bookNumber: number; chapter: number; verse: number }) => void;
   readonly onEditNote: (note: Note) => void;
+  readonly onOpenCommentary?: ((verseNumber: number) => void) | undefined;
 }
 
 export const ChapterReader = memo(function ChapterReader({
@@ -46,6 +47,7 @@ export const ChapterReader = memo(function ChapterReader({
   onHighlight,
   onAddNote,
   onEditNote,
+  onOpenCommentary,
 }: ChapterReaderProps) {
   const { t, language } = useI18n();
   const book = getBookByNumber(chapter.bookNumber);
@@ -170,6 +172,7 @@ export const ChapterReader = memo(function ChapterReader({
               onHighlight={(color) => onHighlight(reference, color)}
               onAddNote={() => onAddNote(reference)}
               onEditNote={onEditNote}
+              {...(onOpenCommentary ? { onOpenCommentary: () => onOpenCommentary(verse.number) } : {})}
             />
           );
         })}

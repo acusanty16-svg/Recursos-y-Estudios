@@ -10,7 +10,7 @@ import {
   pruneTombstones,
 } from './sync';
 import type { SyncSnapshot } from './sync';
-import type { LampClubProgress, MemorizedVerse, Note, Song } from './types';
+import type { LampClubProgress, MemorizedVerse, Note, Song, YearPlanEntry } from './types';
 
 const REFERENCE = { bookNumber: 43, chapter: 3, verse: 16 };
 
@@ -195,6 +195,12 @@ describe('parseSnapshot', () => {
       translationId: 'RV1960',
     };
 
+    const yearEntry: YearPlanEntry = {
+      id: 'year-1',
+      day: 1,
+      completedAt: 3500,
+    };
+
     const snap = buildSnapshot(
       {
         notes: [sermonNote],
@@ -203,6 +209,7 @@ describe('parseSnapshot', () => {
         memorizedVerses: [],
         songs: [customSong],
         lampClub: [lampEntry],
+        yearPlan: [yearEntry],
       },
       createEmptyTombstones(),
       4000,
@@ -214,8 +221,9 @@ describe('parseSnapshot', () => {
     expect(roundTrip?.notes[0]?.reference).toBeUndefined();
     expect(roundTrip?.songs[0]?.title).toBe('Sublime Gracia');
     expect(roundTrip?.lampClub[0]?.level).toBe(1);
+    expect(roundTrip?.yearPlan[0]?.day).toBe(1);
 
-    // Snapshot v1 antiguo sin campos `songs` ni `lampClub`:
+    // Snapshot v1 antiguo sin campos `songs`, `lampClub` ni `yearPlan`:
     const legacy = parseSnapshot({
       version: 1,
       updatedAt: 1000,
@@ -227,5 +235,6 @@ describe('parseSnapshot', () => {
     });
     expect(legacy?.songs).toEqual([]);
     expect(legacy?.lampClub).toEqual([]);
+    expect(legacy?.yearPlan).toEqual([]);
   });
 });

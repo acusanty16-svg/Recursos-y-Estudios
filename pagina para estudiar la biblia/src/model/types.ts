@@ -171,6 +171,12 @@ export interface LampClubProgress {
   readonly translationId: TranslationId;
 }
 
+export interface YearPlanEntry {
+  readonly id: string;
+  readonly day: number;
+  readonly completedAt: number;
+}
+
 export interface ImportedFileMeta {
   readonly kind: ImportKind;
   readonly fileName: string;

@@ -16,9 +16,18 @@ import type {
   SongCategory,
   TranslationId,
   VerseReference,
+  YearPlanEntry,
 } from './types';
 
-export const SYNC_KINDS = ['notes', 'highlights', 'bookmarks', 'memorized', 'songs', 'lampClub'] as const;
+export const SYNC_KINDS = [
+  'notes',
+  'highlights',
+  'bookmarks',
+  'memorized',
+  'songs',
+  'lampClub',
+  'yearPlan',
+] as const;
 
 export type SyncEntityKind = (typeof SYNC_KINDS)[number];
 
@@ -32,6 +41,7 @@ export interface LocalSyncData {
   readonly memorizedVerses: readonly MemorizedVerse[];
   readonly songs?: readonly Song[];
   readonly lampClub?: readonly LampClubProgress[];
+  readonly yearPlan?: readonly YearPlanEntry[];
 }
 
 export interface SyncSnapshot {
@@ -43,15 +53,16 @@ export interface SyncSnapshot {
   readonly memorizedVerses: readonly MemorizedVerse[];
   readonly songs: readonly Song[];
   readonly lampClub: readonly LampClubProgress[];
+  readonly yearPlan: readonly YearPlanEntry[];
   readonly tombstones: Tombstones;
 }
 
-type SyncEntity = Note | Highlight | Bookmark | MemorizedVerse | Song | LampClubProgress;
+type SyncEntity = Note | Highlight | Bookmark | MemorizedVerse | Song | LampClubProgress | YearPlanEntry;
 
 const TOMBSTONE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 180;
 
 export function createEmptyTombstones(): Tombstones {
-  return { notes: {}, highlights: {}, bookmarks: {}, memorized: {}, songs: {}, lampClub: {} };
+  return { notes: {}, highlights: {}, bookmarks: {}, memorized: {}, songs: {}, lampClub: {}, yearPlan: {} };
 }
 
 /** Un borrado se conserva 180 días para que otros dispositivos lo reciban. */
@@ -128,6 +139,7 @@ export function mergeSnapshots(
     ),
     songs: mergeEntities(local.songs, remote.songs, tombstones.songs),
     lampClub: mergeEntities(local.lampClub, remote.lampClub, tombstones.lampClub),
+    yearPlan: mergeEntities(local.yearPlan, remote.yearPlan, tombstones.yearPlan),
     tombstones,
   };
 }
@@ -146,13 +158,14 @@ export function buildSnapshot(
     memorizedVerses: data.memorizedVerses,
     songs: data.songs ?? [],
     lampClub: data.lampClub ?? [],
+    yearPlan: data.yearPlan ?? [],
     tombstones: pruneTombstones(tombstones, updatedAt),
   };
 }
 
 export function createEmptySnapshot(now = Date.now()): SyncSnapshot {
   return buildSnapshot(
-    { notes: [], highlights: [], bookmarks: [], memorizedVerses: [], songs: [], lampClub: [] },
+    { notes: [], highlights: [], bookmarks: [], memorizedVerses: [], songs: [], lampClub: [], yearPlan: [] },
     createEmptyTombstones(),
     now,
   );
@@ -288,6 +301,18 @@ function parseLampClub(value: unknown): LampClubProgress | null {
   };
 }
 
+function parseYearPlan(value: unknown): YearPlanEntry | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== 'string' || !isFiniteNumber(value.day) || !isFiniteNumber(value.completedAt)) {
+    return null;
+  }
+  return {
+    id: value.id,
+    day: value.day,
+    completedAt: value.completedAt,
+  };
+}
+
 function parseHighlight(value: unknown): Highlight | null {
   if (!isRecord(value)) return null;
   if (
@@ -388,6 +413,7 @@ export function parseSnapshot(value: unknown): SyncSnapshot | null {
     memorizedVerses: parseList(value.memorizedVerses, parseMemorized),
     songs: parseList(value.songs, parseSong),
     lampClub: parseList(value.lampClub, parseLampClub),
+    yearPlan: parseList(value.yearPlan, parseYearPlan),
     tombstones: parseTombstones(value.tombstones),
   };
 }

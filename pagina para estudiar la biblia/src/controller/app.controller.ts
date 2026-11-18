@@ -14,6 +14,7 @@ import {
   getAllMemorizedVerses,
   getAllNotes,
   getAllSongs,
+  getAllYearPlan,
   putEvent,
 } from './idb';
 import { loadPreferences, updatePreferences } from './preferences.controller';
@@ -48,18 +49,30 @@ export async function bootstrapApp(): Promise<void> {
   }));
 
   try {
-    const [notes, highlights, bookmarks, memorizedVerses, songs, lampClub, events, importedMeta] = await Promise.all([
-      getAllNotes(),
-      getAllHighlights(),
-      getAllBookmarks(),
-      getAllMemorizedVerses(),
-      getAllSongs(),
-      getAllLampClub(),
-      getAllEvents(),
-      getAllImportedMeta(),
-    ]);
+    const [notes, highlights, bookmarks, memorizedVerses, songs, lampClub, yearPlan, events, importedMeta] =
+      await Promise.all([
+        getAllNotes(),
+        getAllHighlights(),
+        getAllBookmarks(),
+        getAllMemorizedVerses(),
+        getAllSongs(),
+        getAllLampClub(),
+        getAllYearPlan(),
+        getAllEvents(),
+        getAllImportedMeta(),
+      ]);
 
     const streak = buildStreakState(events);
+    const savedPlanStart = localStorage.getItem(STORAGE_KEYS.yearPlanStart);
+    const yearPlanStart =
+      savedPlanStart && /^\d{4}-\d{2}-\d{2}$/.test(savedPlanStart) ? savedPlanStart : toDayKey();
+    if (!savedPlanStart) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.yearPlanStart, yearPlanStart);
+      } catch {
+        // Ignorado si localStorage está restringido.
+      }
+    }
 
     appStore.setState((state) => ({
       ...state,
@@ -69,6 +82,8 @@ export async function bootstrapApp(): Promise<void> {
       memorizedVerses,
       songs,
       lampClub,
+      yearPlan,
+      yearPlanStart,
       events,
       importedMeta,
       streak,

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { DEFAULT_PREFERENCES } from '../model/constants';
+import { toDayKey } from '../model/reference';
 import type {
   Bookmark,
   Chapter,
@@ -13,6 +14,7 @@ import type {
   Song,
   StreakState,
   TranslationId,
+  YearPlanEntry,
 } from '../model/types';
 
 export type ToastTone = 'info' | 'success' | 'error';
@@ -63,6 +65,8 @@ export interface AppState {
   readonly memorizedVerses: readonly MemorizedVerse[];
   readonly songs: readonly Song[];
   readonly lampClub: readonly LampClubProgress[];
+  readonly yearPlan: readonly YearPlanEntry[];
+  readonly yearPlanStart: string;
   readonly events: readonly ReadingEvent[];
   readonly importedMeta: readonly ImportedFileMeta[];
   readonly streak: StreakState;
@@ -95,6 +99,8 @@ const INITIAL_STATE: AppState = {
   memorizedVerses: [],
   songs: [],
   lampClub: [],
+  yearPlan: [],
+  yearPlanStart: toDayKey(),
   events: [],
   importedMeta: [],
   streak: INITIAL_STREAK,

@@ -50,7 +50,10 @@ export function ReaderPage() {
   const [comparisonError, setComparisonError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [referenceOpen, setReferenceOpen] = useState(false);
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [drawerState, setDrawerState] = useState<{
+    readonly tab: 'notes' | 'commentary';
+    readonly focusVerse?: number | null;
+  } | null>(null);
   const [pendingVerse, setPendingVerse] = useState<number | null>(null);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
 
@@ -125,13 +128,13 @@ export function ReaderPage() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape' && !dialog && !referenceOpen && !notesOpen) {
+      if (event.key === 'Escape' && !dialog && !referenceOpen && !drawerState) {
         setSelectedVerse(null);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [dialog, referenceOpen, notesOpen]);
+  }, [dialog, referenceOpen, drawerState]);
 
   useEffect(() => {
     if (pendingVerse === null || !chapter) return;
@@ -179,7 +182,7 @@ export function ReaderPage() {
   }, []);
 
   const openEdit = useCallback((note: Note): void => {
-    setNotesOpen(false);
+    setDrawerState(null);
     setDialog({
       mode: 'edit',
       note,
@@ -243,7 +246,7 @@ export function ReaderPage() {
   };
 
   const handleOpenVerse = (note: Note): void => {
-    setNotesOpen(false);
+    setDrawerState(null);
     if (!note.reference) return;
     if (note.reference.bookNumber === bookNumber && note.reference.chapter === chapterNumber) {
       scrollToVerse(note.reference.verse);
@@ -270,7 +273,10 @@ export function ReaderPage() {
         progress={readingPosition.progress}
         notesCount={chapterNotes.length}
         onOpenReference={() => setReferenceOpen(true)}
-        onOpenNotes={() => setNotesOpen(true)}
+        onOpenNotes={() => setDrawerState({ tab: 'notes', focusVerse: selectedVerse ?? readingPosition.activeVerse })}
+        onOpenCommentary={() =>
+          setDrawerState({ tab: 'commentary', focusVerse: selectedVerse ?? readingPosition.activeVerse })
+        }
         onSelectTranslation={handleSelectTranslation}
         onCompare={setCompareTranslation}
         onSwapTranslations={handleSwapTranslations}
@@ -337,6 +343,7 @@ export function ReaderPage() {
             onHighlight={handleHighlight}
             onAddNote={openCreate}
             onEditNote={openEdit}
+            onOpenCommentary={(verseNumber) => setDrawerState({ tab: 'commentary', focusVerse: verseNumber })}
           />
         ) : null}
       </div>
@@ -350,13 +357,17 @@ export function ReaderPage() {
         />
       ) : null}
 
-      {notesOpen ? (
+      {drawerState ? (
         <NotesDrawer
           notes={chapterNotes}
+          bookNumber={bookNumber}
+          chapter={chapterNumber}
+          initialTab={drawerState.tab}
+          focusVerse={drawerState.focusVerse}
           onEdit={openEdit}
           onDelete={(id) => void removeNote(id)}
           onOpenVerse={handleOpenVerse}
-          onClose={() => setNotesOpen(false)}
+          onClose={() => setDrawerState(null)}
         />
       ) : null}
 

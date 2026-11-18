@@ -61,8 +61,8 @@ function isAuthProblem(cause: unknown): boolean {
 }
 
 function collectLocalData(): LocalSyncData {
-  const { notes, highlights, bookmarks, memorizedVerses, songs, lampClub } = appStore.getState();
-  return { notes, highlights, bookmarks, memorizedVerses, songs, lampClub };
+  const { notes, highlights, bookmarks, memorizedVerses, songs, lampClub, yearPlan } = appStore.getState();
+  return { notes, highlights, bookmarks, memorizedVerses, songs, lampClub, yearPlan };
 }
 
 function buildLocalSnapshot(): SyncSnapshot {
@@ -80,6 +80,7 @@ async function applySnapshot(snapshot: SyncSnapshot): Promise<void> {
     memorizedVerses: snapshot.memorizedVerses,
     songs: snapshot.songs,
     lampClub: snapshot.lampClub,
+    yearPlan: snapshot.yearPlan,
   }));
 
   try {

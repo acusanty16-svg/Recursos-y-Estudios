@@ -11,6 +11,7 @@ import type {
   Note,
   ReadingEvent,
   Song,
+  YearPlanEntry,
 } from '../model/types';
 
 interface HandleRecord {
@@ -32,6 +33,7 @@ interface SantiDB extends DBSchema {
   memorized: { key: string; value: MemorizedVerse; indexes: { 'by-ref': string } };
   songs: { key: string; value: Song };
   lampClub: { key: string; value: LampClubProgress };
+  yearPlan: { key: string; value: YearPlanEntry };
   events: { key: string; value: ReadingEvent; indexes: { 'by-day': string } };
   handles: { key: ImportKind; value: HandleRecord };
   meta: { key: string; value: MetaRecord };
@@ -72,6 +74,9 @@ export function getDb(): Promise<AppDatabase> {
       }
       if (!db.objectStoreNames.contains('lampClub')) {
         db.createObjectStore('lampClub', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('yearPlan')) {
+        db.createObjectStore('yearPlan', { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains('events')) {
         const store = db.createObjectStore('events', { keyPath: 'id' });
@@ -215,6 +220,23 @@ export async function deleteLampClub(id: string): Promise<void> {
   await db.delete('lampClub', id);
 }
 
+/* ------------------------ Plan Biblia en un año --------------------------- */
+
+export async function getAllYearPlan(): Promise<readonly YearPlanEntry[]> {
+  const db = await getDb();
+  return db.getAll('yearPlan');
+}
+
+export async function putYearPlan(entry: YearPlanEntry): Promise<void> {
+  const db = await getDb();
+  await db.put('yearPlan', entry);
+}
+
+export async function deleteYearPlan(id: string): Promise<void> {
+  const db = await getDb();
+  await db.delete('yearPlan', id);
+}
+
 /**
  * Reemplaza las colecciones sincronizadas de una sola vez.
  * Se usa al aplicar una fusión de Drive para evitar estados intermedios.
@@ -226,15 +248,20 @@ export async function replaceSyncedData(data: {
   readonly memorizedVerses: readonly MemorizedVerse[];
   readonly songs: readonly Song[];
   readonly lampClub: readonly LampClubProgress[];
+  readonly yearPlan: readonly YearPlanEntry[];
 }): Promise<void> {
   const db = await getDb();
-  const tx = db.transaction(['notes', 'highlights', 'bookmarks', 'memorized', 'songs', 'lampClub'], 'readwrite');
+  const tx = db.transaction(
+    ['notes', 'highlights', 'bookmarks', 'memorized', 'songs', 'lampClub', 'yearPlan'],
+    'readwrite',
+  );
   const notesStore = tx.objectStore('notes');
   const highlightsStore = tx.objectStore('highlights');
   const bookmarksStore = tx.objectStore('bookmarks');
   const memorizedStore = tx.objectStore('memorized');
   const songsStore = tx.objectStore('songs');
   const lampStore = tx.objectStore('lampClub');
+  const yearPlanStore = tx.objectStore('yearPlan');
 
   // Todas las peticiones se encolan de forma síncrona: así la transacción
   // no se cierra entre los clear y los put.
@@ -245,12 +272,14 @@ export async function replaceSyncedData(data: {
     memorizedStore.clear(),
     songsStore.clear(),
     lampStore.clear(),
+    yearPlanStore.clear(),
     ...data.notes.map((note) => notesStore.put(note)),
     ...data.highlights.map((highlight) => highlightsStore.put(highlight)),
     ...data.bookmarks.map((bookmark) => bookmarksStore.put(bookmark)),
     ...data.memorizedVerses.map((verse) => memorizedStore.put(verse)),
     ...data.songs.map((song) => songsStore.put(song)),
     ...data.lampClub.map((item) => lampStore.put(item)),
+    ...data.yearPlan.map((entry) => yearPlanStore.put(entry)),
   ]);
 
   await tx.done;
@@ -351,6 +380,7 @@ export async function clearAllUserData(): Promise<void> {
     db.clear('memorized'),
     db.clear('songs'),
     db.clear('lampClub'),
+    db.clear('yearPlan'),
     db.clear('events'),
     db.clear('handles'),
     db.clear('meta'),

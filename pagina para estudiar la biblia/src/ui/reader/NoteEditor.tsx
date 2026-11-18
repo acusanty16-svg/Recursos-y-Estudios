@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MAX_NOTE_LENGTH } from '@model/constants';
-import { formatReference, parseReferenceInput, toDayKey } from '@model/reference';
+import { extractBibleReferences, formatReference, parseReferenceInput, toDayKey } from '@model/reference';
 import { NOTE_CATEGORIES, type NoteCategory, type VerseReference } from '@model/types';
 import { useI18n } from '@ui/hooks/useI18n';
 import { CATEGORY_STYLES } from '@ui/components/note-category-styles';
@@ -75,6 +75,15 @@ export function NoteEditor({
 
   const showExtendedMeta = category !== 'verse';
   const parsedPassage = passageText.trim() ? parseReferenceInput(passageText) : null;
+  const detectedBodyRefs = useMemo(() => {
+    const seen = new Set<string>();
+    return extractBibleReferences(body).filter((hit) => {
+      const key = `${hit.reference.bookNumber}:${hit.reference.chapter}:${hit.reference.verse}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [body]);
 
   const handleSave = (): void => {
     if (body.trim().length === 0) return;
@@ -293,6 +302,22 @@ export function NoteEditor({
         <p className="mt-1.5 text-[11px] text-navy-400 dark:text-parchment-300/60">
           {t('notes.linkedVersesHint')} · {t('notes.markdownHint')}
         </p>
+
+        {editorMode === 'write' && detectedBodyRefs.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-medium text-navy-500 dark:text-parchment-300/70">
+              {t('notes.detectedRefs')}:
+            </span>
+            {detectedBodyRefs.map((hit) => (
+              <span
+                key={`${hit.start}-${hit.raw}`}
+                className="inline-flex items-center rounded-md border border-ember-500/25 bg-ember-500/15 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-ember-700 dark:border-ember-400/30 dark:bg-ember-400/15 dark:text-ember-300"
+              >
+                {formatReference(hit.reference, language)}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div>

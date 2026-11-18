@@ -3,12 +3,20 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '@model/constants';
 import { getBookByNumber } from '@model/canon';
 import { formatChapterLabel, formatReference, toDayKey } from '@model/reference';
+import {
+  YEAR_PLAN_DAYS_COUNT,
+  formatGroupedReading,
+  getSuggestedPlanDay,
+  getYearPlanDay,
+  groupDayReadings,
+} from '@model/bibleYearPlan';
 import { computeStats, lastSevenDays } from '@seguimiento/stats';
 import { hasGraceAvailable } from '@seguimiento/streak';
 import { TOTAL_LAMP_VERSES } from '@rsc/club-lampara';
 import { VERSICULOS_MOCK } from '@rsc';
 import { goToChapter } from '@controller/app.controller';
 import { getEffectiveSongs } from '@controller/music.controller';
+import { toggleYearPlanDay } from '@controller/year-plan.controller';
 import { useAppStore } from '@controller/store';
 import { useI18n, formatLongDate, formatRelativeDay } from '@ui/hooks/useI18n';
 import { PageHeader } from '@ui/components/PageHeader';
@@ -16,6 +24,8 @@ import { InteractiveSurface, StaggerGroup, StaggerItem } from '@ui/components/Mo
 import { VerseShareDialog } from '@ui/components/VerseShareDialog';
 import {
   BookIcon,
+  CalendarIcon,
+  CheckIcon,
   ChevronRightIcon,
   FlameIcon,
   MemorizeIcon,
@@ -90,6 +100,16 @@ export function DashboardPage() {
   const latestNote = sermonStudyNotes[0] ?? state.notes[0] ?? null;
   const featuredSong = effectiveSongs[hashDay(today) % Math.max(1, effectiveSongs.length)] ?? null;
   const graceAvailable = hasGraceAvailable(state.streak);
+
+  const suggestedPlanDay = useMemo(
+    () => getSuggestedPlanDay(state.yearPlanStart, today),
+    [state.yearPlanStart, today],
+  );
+  const todayPlanEntry = getYearPlanDay(suggestedPlanDay);
+  const todayPlanGroups = groupDayReadings(todayPlanEntry.readings);
+  const yearDoneCount = state.yearPlan.length;
+  const todayPlanDone = state.yearPlan.some((item) => item.day === todayPlanEntry.day);
+  const yearPercent = Math.min(100, Math.round((yearDoneCount / YEAR_PLAN_DAYS_COUNT) * 100));
 
   return (
     <StaggerGroup className="space-y-8">
@@ -195,6 +215,71 @@ export function DashboardPage() {
             <BookIcon size={16} />
             {t('dashboard.startReading')}
           </Link>
+        </section>
+      </StaggerItem>
+
+      {/* 2b. Biblia en un año — Lectura de hoy */}
+      <StaggerItem>
+        <section className="sv-card space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="sv-label mb-1 flex items-center gap-1.5 text-ember-700 dark:text-ember-400">
+                <CalendarIcon size={14} />
+                {t('plan.title')} · {t('plan.dayLabel')} {todayPlanEntry.day} {t('plan.ofDays')}
+              </p>
+              <h2 className="font-serif text-xl font-medium text-navy-900 dark:text-parchment-50">
+                {t('plan.todayReading')}
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void toggleYearPlanDay(todayPlanEntry.day)}
+                className={`sv-btn min-h-9 px-3 py-1.5 text-xs ${
+                  todayPlanDone
+                    ? 'border border-sage-500/40 bg-sage-500/15 text-sage-500 dark:text-sage-300'
+                    : 'sv-btn-primary'
+                }`}
+              >
+                <CheckIcon size={14} />
+                {todayPlanDone ? t('plan.completed') : t('plan.markCompleted')}
+              </button>
+              <Link
+                to={ROUTES.plan}
+                className="sv-btn sv-btn-ghost border border-navy-900/12 min-h-9 px-3 py-1.5 text-xs dark:border-parchment-100/12"
+              >
+                {t('plan.viewFullPlan')}
+                <ChevronRightIcon size={14} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {todayPlanGroups.map((group) => (
+              <Link
+                key={`${group.bookNumber}-${group.startChapter}`}
+                to={ROUTES.reader}
+                onClick={() => void goToChapter(group.bookNumber, group.startChapter)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-navy-900/12 bg-parchment-100/80 px-3 py-1.5 text-xs font-medium text-navy-800 transition hover:border-ember-500/45 hover:text-ember-700 dark:border-parchment-100/12 dark:bg-navy-800/70 dark:text-parchment-100 dark:hover:text-ember-300"
+              >
+                <BookIcon size={13} className="text-ember-600 dark:text-ember-400" />
+                {formatGroupedReading(group, language)}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-navy-500 dark:text-navy-300">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-navy-900/10 dark:bg-parchment-100/10">
+              <div
+                className="h-full rounded-full bg-ember-600 transition-all duration-500 dark:bg-ember-400"
+                style={{ width: `${yearPercent}%` }}
+              />
+            </div>
+            <span className="shrink-0 font-mono text-[11px] font-semibold tabular-nums">
+              {yearDoneCount}/{YEAR_PLAN_DAYS_COUNT} ({yearPercent}%)
+            </span>
+          </div>
         </section>
       </StaggerItem>
 

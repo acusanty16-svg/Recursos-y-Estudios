@@ -19,9 +19,10 @@ import { ImportPage } from '@ui/pages/ImportPage';
 import { SettingsPage } from '@ui/pages/SettingsPage';
 import { NotFoundPage } from '@ui/pages/NotFoundPage';
 
-// Swagger UI y el estudio musical se cargan bajo demanda para mantener ligero el arranque.
+// Swagger UI, el plan anual y el estudio musical se cargan bajo demanda para mantener ligero el arranque.
 const ApiExplorerPage = lazy(() => import('@ui/pages/ApiExplorerPage'));
 const MusicPage = lazy(() => import('@ui/pages/MusicPage').then((m) => ({ default: m.MusicPage })));
+const YearPlanPage = lazy(() => import('@ui/pages/YearPlanPage').then((m) => ({ default: m.YearPlanPage })));
 
 function Splash() {
   return (
@@ -57,6 +58,7 @@ export function App() {
                 <Routes location={location}>
                   <Route path={ROUTES.dashboard} element={<DashboardPage />} />
                   <Route path={ROUTES.reader} element={<ReaderPage />} />
+                  <Route path={ROUTES.plan} element={<YearPlanPage />} />
                   <Route path={ROUTES.notes} element={<NotesPage />} />
                   <Route path={ROUTES.music} element={<MusicPage />} />
                   <Route path={ROUTES.import} element={<ImportPage />} />

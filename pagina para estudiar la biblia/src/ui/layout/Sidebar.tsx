@@ -7,6 +7,7 @@ import { ThemeToggle } from '@ui/components/ThemeToggle';
 import { LanguageToggle } from '@ui/components/LanguageToggle';
 import {
   BookIcon,
+  CalendarIcon,
   CodeIcon,
   HomeIcon,
   MusicIcon,
@@ -19,6 +20,7 @@ import {
 export const PRIMARY_NAV_ITEMS = [
   { to: ROUTES.dashboard, key: 'nav.home', Icon: HomeIcon },
   { to: ROUTES.reader, key: 'nav.reader', Icon: BookIcon },
+  { to: ROUTES.plan, key: 'nav.plan', Icon: CalendarIcon },
   { to: ROUTES.notes, key: 'nav.notes', Icon: NoteIcon },
   { to: ROUTES.music, key: 'nav.music', Icon: MusicIcon },
 ] as const;
