@@ -108,7 +108,7 @@ export default function SpeedOrderGame({ verse, theme, onComplete }) {
           </div>
 
           <div className="px-3.5 py-1.5 rounded-xl bg-zinc-950 border border-white/10 font-mono text-sm text-white flex items-center gap-2">
-            <Timer className="w-4 h-4 text-sky-400 animate-pulse" />
+            <Timer className="w-4 h-4 text-cyan-400 animate-pulse" />
             <span>{seconds}s</span>
           </div>
 
@@ -196,14 +196,14 @@ export default function SpeedOrderGame({ verse, theme, onComplete }) {
             key="won"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-transparent border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="p-6 rounded-2xl bg-gradient-to-r from-cyan-400/15 via-coral-400/10 to-transparent border border-cyan-400/35 flex flex-col sm:flex-row items-center justify-between gap-4"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-400/20 flex items-center justify-center text-cyan-400">
                 <Trophy className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-xs font-mono uppercase tracking-wider text-amber-300">
+                <span className="text-xs font-mono uppercase tracking-wider text-cyan-300">
                   {rank}
                 </span>
                 <h5 className="text-lg font-bold text-white">

@@ -18,6 +18,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { cleanWord } from '../../utils/themeConfig';
+import { getVerseStudyStatus } from '../../utils/studyMastery';
 import { getYouthApplication } from '../../utils/youthApplications';
 import { soundFX } from '../../utils/soundEffects';
 
@@ -31,7 +32,9 @@ const QUICK_GAMES = [
 
 export default function VerseStation({
   verse,
+  verseXp = 0,
   theme,
+  totalWeeks = 4,
   completedGames = {},
   isMissionDone = false,
   hasPrev = false,
@@ -47,6 +50,7 @@ export default function VerseStation({
   const [speaking, setSpeaking] = useState(false);
 
   const youthChallenge = useMemo(() => getYouthApplication(verse), [verse]);
+  const study = useMemo(() => getVerseStudyStatus(verseXp), [verseXp]);
 
   const keySet = useMemo(
     () => new Set((verse.palabrasClave || []).map((k) => cleanWord(k))),
@@ -115,10 +119,13 @@ export default function VerseStation({
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`px-3.5 py-1 rounded-xl font-mono text-xs font-bold border ${theme.badgeBg}`}>
-              NIVEL 0{verse.nivel} · VERSÍCULO 0{verse.semana}/08
+              SEMANA 0{verse.nivel} / 0{totalWeeks} · DESAFÍO 119:9
             </span>
             <span className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 font-mono text-xs text-zinc-300">
               {verse.categoria}
+            </span>
+            <span className={`px-3 py-1 rounded-xl border font-mono text-xs font-bold ${study.current.badgeClass}`}>
+              Estudio: {study.current.label} · {study.xp} XP
             </span>
           </div>
 
@@ -126,14 +133,14 @@ export default function VerseStation({
           <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-950/90 border border-white/10"
-              title={`${starsCount} de 5 juegos superados en este versículo`}
+              title={`${starsCount} de 5 juegos superados en esta semana`}
             >
               {[1, 2, 3, 4, 5].map((starIdx) => (
                 <Star
                   key={starIdx}
                   className={`w-4 h-4 transition-all ${
                     starIdx <= starsCount
-                      ? 'text-amber-400 fill-amber-400 scale-105'
+                      ? 'text-cyan-400 fill-cyan-400 scale-105'
                       : 'text-zinc-700'
                   }`}
                 />
@@ -229,6 +236,26 @@ export default function VerseStation({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Medidor de dominio por XP acumulada en este versículo */}
+          <div className="mt-5 pt-4 border-t border-white/10 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <span className="text-zinc-400">
+                Nivel de estudio: <strong className="text-white">{study.current.label}</strong>
+              </span>
+              <span className={theme.accentText}>
+                {study.next
+                  ? `${study.xp} XP · faltan ${study.xpToNext} XP para «${study.next.label}»`
+                  : `${study.xp} XP · ¡Nivel Maestro 119:9 alcanzado!`}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-zinc-900 overflow-hidden border border-white/5">
+              <div
+                className={`h-full transition-all duration-500 ${study.current.barClass}`}
+                style={{ width: `${study.progressPercent}%` }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Single Direct Youth Practical Application Box */}

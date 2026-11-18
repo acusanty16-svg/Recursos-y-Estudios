@@ -3,6 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Crosshair, RotateCcw, Award, Check, X } from 'lucide-react';
 import { soundFX } from '../../utils/soundEffects';
 
+const SAFE_DECOY_REFS = [
+  'Salmos 119:9',
+  'Proverbios 3:5',
+  'Josué 1:9',
+  'Filipenses 4:13',
+  'Romanos 12:2',
+  'Efesios 6:10',
+  'Juan 3:16',
+  'Salmos 23:1',
+];
+
 export default function ReferenceSniper({ verse, allVerses, theme, onComplete }) {
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
@@ -10,18 +21,25 @@ export default function ReferenceSniper({ verse, allVerses, theme, onComplete })
   const [timeLeft, setTimeLeft] = useState(100); // percentage 100 -> 0
   const [isFinished, setIsFinished] = useState(false);
 
-  // Build 5 rounds starting with the current verse, then 4 others from the same level (or nearby)
+  // Construye 4 rondas usando solo versículos desbloqueados (sin revelar semanas futuras)
   const questions = useMemo(() => {
-    const sameLevel = allVerses.filter((v) => v.nivel === verse.nivel && v.id !== verse.id);
-    const shuffledLevel = [...sameLevel].sort(() => Math.random() - 0.5).slice(0, 4);
-    const targetVerses = [verse, ...shuffledLevel];
+    const othersUnlocked = allVerses.filter((v) => v.id !== verse.id);
+    const pool = [verse, ...othersUnlocked];
+    const targetVerses = Array.from({ length: Math.min(4, Math.max(2, pool.length)) }, (_, i) =>
+      pool[i % pool.length]
+    );
+    const hiddenFutureRefs = new Set(['Salmo 51:10', '1 Corintios 10:12', '2 Timoteo 1:7', '2 Timoteo 2:22']);
 
     return targetVerses.map((target, idx) => {
-      const distractors = allVerses
+      const unlockedRefs = allVerses
         .filter((v) => v.referencia !== target.referencia)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
         .map((v) => v.referencia);
+      const safeExtras = SAFE_DECOY_REFS.filter(
+        (r) => r !== target.referencia && !unlockedRefs.includes(r) && !hiddenFutureRefs.has(r)
+      );
+      const distractors = [...unlockedRefs, ...safeExtras]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
 
       const options = [target.referencia, ...distractors].sort(() => Math.random() - 0.5);
 
@@ -91,8 +109,8 @@ export default function ReferenceSniper({ verse, allVerses, theme, onComplete })
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-900/80 border border-white/10 rounded-2xl p-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-sky-400 flex items-center gap-1.5">
-            <Crosshair className="w-3.5 h-3.5" /> Misión 04 // Francotirador de Citas (Nivel {verse.nivel})
+          <span className="text-xs font-mono uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
+            <Crosshair className="w-3.5 h-3.5" /> Misión 04 // Francotirador de Citas (Semana {verse.nivel})
           </span>
           <h4 className="text-base font-bold text-white mt-0.5">
             Identifica la referencia bíblica exacta antes de que se agote el radar

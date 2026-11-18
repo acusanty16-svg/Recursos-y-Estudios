@@ -147,7 +147,7 @@ export default function ClozeGame({ verse, theme, onComplete }) {
             className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 disabled:opacity-40 transition"
             title="Ver la primera letra de la palabra actual"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+            <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
             Pista
           </button>
 
@@ -278,7 +278,7 @@ export default function ClozeGame({ verse, theme, onComplete }) {
               </div>
               <div>
                 <h5 className="text-lg font-bold text-white flex items-center gap-2">
-                  ¡Código Desencriptado! <Sparkles className="w-4 h-4 text-amber-400" />
+                  ¡Código Desencriptado! <Sparkles className="w-4 h-4 text-cyan-400" />
                 </h5>
                 <p className="text-sm text-zinc-300">
                   Has dominado todas las palabras clave de {verse.referencia}. (+{180 + lives * 25} XP)

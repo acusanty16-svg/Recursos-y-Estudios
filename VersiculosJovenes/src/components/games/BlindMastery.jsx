@@ -80,7 +80,7 @@ export default function BlindMastery({ verse, theme, onComplete }) {
       {/* Header & Mode Switch */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-900/80 border border-white/10 rounded-2xl p-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+          <span className="text-xs font-mono uppercase tracking-widest text-coral-400 flex items-center gap-1.5">
             <Flame className="w-3.5 h-3.5" /> Misión 05 // Modo Leyenda (Recitación a Ciegas)
           </span>
           <h4 className="text-base font-bold text-white mt-0.5">
@@ -200,10 +200,10 @@ export default function BlindMastery({ verse, theme, onComplete }) {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="p-6 rounded-2xl bg-gradient-to-r from-amber-500/20 via-emerald-500/15 to-transparent border border-amber-400/40 flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="p-6 rounded-2xl bg-gradient-to-r from-cyan-400/20 via-coral-400/15 to-transparent border border-cyan-400/40 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/25 flex items-center justify-center text-amber-300">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-400/25 flex items-center justify-center text-cyan-300">
               <Sparkles className="w-7 h-7" />
             </div>
             <div>
@@ -217,9 +217,9 @@ export default function BlindMastery({ verse, theme, onComplete }) {
           </div>
           <button
             onClick={handleReset}
-            className="px-5 py-2.5 rounded-xl bg-amber-400 text-zinc-950 font-bold text-sm hover:bg-amber-300 transition"
+            className="px-5 py-2.5 rounded-xl bg-cyan-400 text-zinc-950 font-bold text-sm hover:bg-cyan-300 transition"
           >
-            Repetir Hazгаña
+            Repetir Hazaña
           </button>
         </motion.div>
       )}

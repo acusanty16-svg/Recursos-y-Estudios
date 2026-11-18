@@ -97,7 +97,7 @@ export default function IntruderGame({ verse, theme, onComplete }) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-900/80 border border-white/10 rounded-2xl p-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-rose-400 flex items-center gap-1.5">
+          <span className="text-xs font-mono uppercase tracking-widest text-coral-400 flex items-center gap-1.5">
             <Bug className="w-3.5 h-3.5" /> Misión 03 // Cazador de Glitches
           </span>
           <h4 className="text-base font-bold text-white mt-0.5">
@@ -164,7 +164,7 @@ export default function IntruderGame({ verse, theme, onComplete }) {
         <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-zinc-400">
           <span>CITA: {verse.referencia}</span>
           <span className="flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            <AlertTriangle className="w-3.5 h-3.5 text-coral-400" />
             Errores de escaneo: {mistakes}
           </span>
         </div>
@@ -183,7 +183,7 @@ export default function IntruderGame({ verse, theme, onComplete }) {
             </div>
             <div>
               <h5 className="text-lg font-bold text-white flex items-center gap-2">
-                ¡Texto Bíblico Restaurado al 100%! <Sparkles className="w-4 h-4 text-amber-400" />
+                ¡Texto Bíblico Restaurado al 100%! <Sparkles className="w-4 h-4 text-cyan-400" />
               </h5>
               <p className="text-sm text-zinc-300">
                 Ninguna palabra infiltrada pudo engañarte en {verse.referencia}.

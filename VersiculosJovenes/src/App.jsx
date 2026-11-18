@@ -1,10 +1,19 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import data from './data/versiculos.json';
 import { useProgress } from './hooks/useProgress';
+import {
+  CHALLENGE_META,
+  formatShortDateEs,
+  getChallengePhase,
+} from './utils/challengeSchedule';
 import NavbarHUD from './components/layout/NavbarHUD';
+import DesafioBrandMark from './components/layout/DesafioBrandMark';
+import PlayerWelcomeModal from './components/layout/PlayerWelcomeModal';
+import LeaderboardModal from './components/layout/LeaderboardModal';
 import LevelSection from './components/scrollytelling/LevelSection';
 import GameArenaModal from './components/games/GameArenaModal';
+import GrandFinaleModal from './components/games/GrandFinaleModal';
 import VersusModal from './components/games/VersusModal';
 import { Sparkles, Lock } from 'lucide-react';
 
@@ -12,80 +21,91 @@ export default function App() {
   const { niveles, versiculos } = data;
   const {
     progress,
+    syncStatus,
+    effectiveTodayKey,
     recordGameWin,
-    claimMilestoneChest,
+    recordFinaleResult,
     markVerseExplored,
     toggleMissionDone,
+    confirmPlayerProfile,
+    switchNewPlayer,
     toggleLeaderUnlockAll,
+    setPreviewDate,
     setPlayerName,
     awardBonusXp,
     clearToast,
+    getVerseXp,
     getLevelMasteryCount,
     isLevelUnlocked,
     getTotalMasteredCount,
   } = useProgress();
 
-  const [activeLevelId, setActiveLevelId] = useState(1);
-  const [activeVerseIndex, setActiveVerseIndex] = useState(0);
+  const phaseInfo = useMemo(
+    () => getChallengePhase(niveles, effectiveTodayKey),
+    [niveles, effectiveTodayKey]
+  );
+
+  const [activeLevelId, setActiveLevelId] = useState(() => phaseInfo.activeWeekId || 1);
   const [lockedNotice, setLockedNotice] = useState(null);
   const [versusOpen, setVersusOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [finalModalMode, setFinalModalMode] = useState(null); // null | 'grace' | 'finale'
   const [arenaState, setArenaState] = useState({
     isOpen: false,
     verse: null,
     mode: 'cloze',
   });
 
-  // Auto-hide micro-reward toast after 4s
+  // Mantener la semana seleccionada dentro de las desbloqueadas cuando cambia la fecha de vista previa
+  useEffect(() => {
+    if (!isLevelUnlocked(activeLevelId, versiculos, niveles)) {
+      setActiveLevelId(phaseInfo.activeWeekId || 1);
+    }
+  }, [activeLevelId, isLevelUnlocked, versiculos, niveles, phaseInfo.activeWeekId]);
+
   useEffect(() => {
     if (!progress.lastRewardToast) return;
     const t = setTimeout(() => clearToast(), 4000);
     return () => clearTimeout(t);
   }, [progress.lastRewardToast, clearToast]);
 
-  // Auto-hide locked notice after 3.5s
   useEffect(() => {
     if (!lockedNotice) return;
     const t = setTimeout(() => setLockedNotice(null), 3500);
     return () => clearTimeout(t);
   }, [lockedNotice]);
 
+  const unlockedVerses = useMemo(
+    () => versiculos.filter((v) => isLevelUnlocked(v.nivel, versiculos, niveles)),
+    [versiculos, isLevelUnlocked, niveles]
+  );
+
   const totalMastered = getTotalMasteredCount(versiculos);
 
   const handleSelectLevel = useCallback(
     (levelId) => {
-      if (!isLevelUnlocked(levelId, versiculos)) {
+      if (!isLevelUnlocked(levelId, versiculos, niveles)) {
+        const target = niveles.find((n) => n.id === levelId);
+        const dateLabel = target ? formatShortDateEs(target.unlockDate) : '';
         setLockedNotice(
-          `🔒 El Nivel 0${levelId} está bloqueado. Completa los 8 versículos del Nivel 0${
-            levelId - 1
-          } para desbloquearlo (o activa el Modo Líder en tu perfil).`
+          `🔒 La Semana ${levelId} se desbloquea el ${dateLabel}. ¡Cada lunes se abre el siguiente versículo!`
         );
         return;
       }
-
       setActiveLevelId(levelId);
-      setActiveVerseIndex(0);
     },
-    [isLevelUnlocked, versiculos]
+    [isLevelUnlocked, versiculos, niveles]
   );
 
   const handleJumpToVerse = useCallback(
     (verse) => {
-      if (!isLevelUnlocked(verse.nivel, versiculos)) {
-        setLockedNotice(
-          `🔒 Ese versículo pertenece al Nivel 0${verse.nivel}. Supera el Nivel 0${
-            verse.nivel - 1
-          } primero.`
-        );
+      if (!isLevelUnlocked(verse.nivel, versiculos, niveles)) {
+        setLockedNotice(`🔒 La Semana ${verse.nivel} todavía no está abierta.`);
         return;
       }
       setActiveLevelId(verse.nivel);
-      const levelVerses = versiculos
-        .filter((v) => v.nivel === verse.nivel)
-        .sort((a, b) => a.semana - b.semana);
-      const idx = levelVerses.findIndex((v) => v.id === verse.id);
-      setActiveVerseIndex(idx !== -1 ? idx : 0);
     },
-    [isLevelUnlocked, versiculos]
+    [isLevelUnlocked, versiculos, niveles]
   );
 
   const handleOpenGame = useCallback((verse, mode = 'cloze') => {
@@ -100,14 +120,30 @@ export default function App() {
     setArenaState((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  const activeNivelObj =
-    niveles.find((n) => n.id === activeLevelId) || niveles[0];
-  const nextNivelObj =
-    niveles.find((n) => n.id === activeLevelId + 1) || null;
-  const activeLevelVerses = versiculos
-    .filter((v) => v.nivel === activeNivelObj.id)
-    .sort((a, b) => a.semana - b.semana);
+  const handleOpenFinalChallenge = useCallback(
+    (mode) => {
+      const hasPreviewOverride = progress.leaderUnlockAll && !progress.previewDate;
+      if (mode === 'grace' && !phaseInfo.isGraceWeekUnlocked && !hasPreviewOverride) {
+        setLockedNotice(
+          `⏳ La Semana 5 (Semana de Gracia) se abre el ${formatShortDateEs(
+            CHALLENGE_META.graceWeekStart
+          )} para preparar la Gran Final.`
+        );
+        return;
+      }
+      if (mode === 'finale' && !phaseInfo.isGrandFinaleUnlocked && !hasPreviewOverride) {
+        setLockedNotice(
+          `🏆 La Gran Final se abre el 19 de diciembre. ¡Guarda los 4 versículos en tu corazón!`
+        );
+        return;
+      }
+      setFinalModalMode(mode);
+    },
+    [progress.leaderUnlockAll, progress.previewDate, phaseInfo]
+  );
 
+  const activeNivelObj = niveles.find((n) => n.id === activeLevelId) || niveles[0];
+  const activeLevelVerses = versiculos.filter((v) => v.nivel === activeNivelObj.id);
   const activeArenaLevel = arenaState.verse
     ? niveles.find((n) => n.id === arenaState.verse.nivel)
     : activeNivelObj;
@@ -115,27 +151,29 @@ export default function App() {
   return (
     <div
       id="top"
-      className="min-h-screen bg-[#07080C] text-zinc-100 relative selection:bg-amber-500/30 selection:text-amber-200 flex flex-col justify-between"
+      className="min-h-screen text-zinc-100 relative selection:bg-cyan-400/30 selection:text-cyan-200 flex flex-col justify-between"
     >
-      {/* Top Sticky HUD */}
       <NavbarHUD
         niveles={niveles}
         versiculos={versiculos}
         activeLevelId={activeLevelId}
-        playerName={progress.playerName || 'Joven ICAF'}
+        playerName={progress.playerName || 'Joven Desafío 119:9'}
         onChangePlayerName={setPlayerName}
         xp={progress.xp}
         totalMastered={totalMastered}
         leaderUnlockAll={progress.leaderUnlockAll}
+        previewDate={progress.previewDate}
+        onSetPreviewDate={setPreviewDate}
         onToggleLeaderUnlock={toggleLeaderUnlockAll}
         getLevelMasteryCount={getLevelMasteryCount}
         isLevelUnlocked={isLevelUnlocked}
         onSelectLevel={handleSelectLevel}
         onJumpToVerse={handleJumpToVerse}
         onOpenVersus={() => setVersusOpen(true)}
+        onOpenLeaderboard={() => setLeaderboardOpen(true)}
       />
 
-      {/* Micro-Reward & Lock Floating Toast Notifications */}
+      {/* Toasts flotantes Cian / Coral */}
       <div className="fixed top-20 right-4 sm:right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
         <AnimatePresence>
           {progress.lastRewardToast && (
@@ -144,9 +182,9 @@ export default function App() {
               initial={{ opacity: 0, x: 40, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 40, scale: 0.9 }}
-              className="pointer-events-auto p-4 rounded-2xl bg-zinc-900/95 border border-emerald-500/40 shadow-2xl backdrop-blur-xl flex items-center gap-3"
+              className="pointer-events-auto p-4 rounded-2xl bg-zinc-950/95 border border-cyan-400/45 shadow-2xl backdrop-blur-xl flex items-center gap-3"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-cyan-400/20 flex items-center justify-center text-cyan-400 shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <p className="text-xs sm:text-sm font-bold text-white leading-snug">
@@ -161,9 +199,9 @@ export default function App() {
               initial={{ opacity: 0, x: 40, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 40, scale: 0.9 }}
-              className="pointer-events-auto p-4 rounded-2xl bg-zinc-900/95 border border-amber-500/40 shadow-2xl backdrop-blur-xl flex items-center gap-3"
+              className="pointer-events-auto p-4 rounded-2xl bg-zinc-950/95 border border-coral-400/45 shadow-2xl backdrop-blur-xl flex items-center gap-3"
             >
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-coral-400/20 flex items-center justify-center text-coral-400 shrink-0">
                 <Lock className="w-5 h-5" />
               </div>
               <p className="text-xs sm:text-sm font-medium text-zinc-200 leading-snug">
@@ -174,52 +212,47 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* Main Content: Title + Verse Container + Games directly */}
+      {/* Contenido principal */}
       <main className="relative z-10 flex-1">
         <LevelSection
-          key={activeNivelObj.id}
           niveles={niveles}
-          versiculos={versiculos}
           nivel={activeNivelObj}
-          nextNivel={nextNivelObj}
           verses={activeLevelVerses}
-          activeVerseIndex={activeVerseIndex}
-          onSelectVerseIndex={setActiveVerseIndex}
+          activeTodayKey={effectiveTodayKey}
+          leaderUnlockAll={progress.leaderUnlockAll && !progress.previewDate}
+          getVerseXp={getVerseXp}
           onSelectLevel={handleSelectLevel}
           isLevelUnlocked={isLevelUnlocked}
           getLevelMasteryCount={getLevelMasteryCount}
           completedGames={progress.completedGames}
           completedMissions={progress.completedMissions || []}
-          claimedChests={progress.claimedChests}
-          levelMasteryCount={getLevelMasteryCount(activeNivelObj.id, versiculos)}
-          isNextLevelUnlocked={
-            nextNivelObj ? isLevelUnlocked(nextNivelObj.id, versiculos) : false
-          }
-          onClaimChest={claimMilestoneChest}
           onToggleMissionDone={toggleMissionDone}
-          onAdvanceToNextLevel={(nextId) => handleSelectLevel(nextId)}
           onOpenGame={handleOpenGame}
           onExploreVerse={markVerseExplored}
+          onOpenFinalChallenge={handleOpenFinalChallenge}
         />
       </main>
 
-      {/* Footer */}
+      {/* Pie de página Desafío 119:9 */}
       <footer className="border-t border-white/10 py-6 px-4 sm:px-6 bg-zinc-950/80">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-500">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="text-zinc-300 font-bold">ICAF-Verses</span>
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-2.5">
+            <DesafioBrandMark size={24} />
+            <span className="font-bold">
+              <span className="text-cyan-400">DESAFÍO</span>{' '}
+              <span className="text-coral-400">119:9</span>
+            </span>
           </div>
-          <div>6 NIVELES · 5 JUEGOS · DUELO 1 VS 1</div>
+          <div>4 SEMANAS · SEMANA DE GRACIA · GRAN FINAL 19 DE DICIEMBRE</div>
         </div>
       </footer>
 
-      {/* 5-Game Interactive Arena Modal */}
+      {/* Arena de los 5 Minijuegos */}
       {arenaState.isOpen && arenaState.verse && (
         <GameArenaModal
           verse={arenaState.verse}
           level={activeArenaLevel}
-          allVerses={activeLevelVerses}
+          allVerses={unlockedVerses}
           initialMode={arenaState.mode}
           completedGamesForVerse={progress.completedGames[arenaState.verse.id] || {}}
           onClose={handleCloseArena}
@@ -233,15 +266,53 @@ export default function App() {
         />
       )}
 
-      {/* 1v1 Duel Modal (2 Personas) */}
+      {/* Duelo 1v1 solo con versículos ya desbloqueados */}
       {versusOpen && (
         <VersusModal
-          versiculos={versiculos}
+          versiculos={unlockedVerses.length > 0 ? unlockedVerses : [versiculos[0]]}
           activeLevelId={activeLevelId}
           onClose={() => setVersusOpen(false)}
           onAwardXp={(amt) => awardBonusXp(amt)}
         />
       )}
+
+      {/* Semana 5 (Gracia) / Gran Final 19 de Diciembre */}
+      {finalModalMode && (
+        <GrandFinaleModal
+          mode={finalModalMode}
+          verses={versiculos}
+          playerName={progress.playerName}
+          onChangePlayerName={setPlayerName}
+          onClose={() => setFinalModalMode(null)}
+          onComplete={(score, isFinale) => recordFinaleResult(score, isFinale)}
+        />
+      )}
+
+      {/* Modal de Ranking Online + Nivel de Estudio por Versículo */}
+      <LeaderboardModal
+        open={leaderboardOpen}
+        niveles={niveles}
+        effectiveTodayKey={effectiveTodayKey}
+        leaderUnlockAll={progress.leaderUnlockAll && !progress.previewDate}
+        currentPlayer={{
+          playerId: progress.playerId,
+          playerName: progress.playerName,
+          profileConfirmed: progress.profileConfirmed,
+          xp: progress.xp,
+          verseXp: progress.verseXp,
+          masteredCount: totalMastered,
+          finaleBestScore: progress.finaleBestScore,
+        }}
+        syncStatus={syncStatus}
+        onSwitchNewPlayer={switchNewPlayer}
+        onClose={() => setLeaderboardOpen(false)}
+      />
+
+      {/* Registro rápido la primera vez que entra un joven */}
+      <PlayerWelcomeModal
+        open={!progress.profileConfirmed}
+        onConfirm={confirmPlayerProfile}
+      />
     </div>
   );
 }

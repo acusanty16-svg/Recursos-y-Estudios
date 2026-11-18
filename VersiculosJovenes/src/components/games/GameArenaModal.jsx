@@ -79,7 +79,7 @@ export default function GameArenaModal({
 
   if (!verse) return null;
 
-  const theme = getTheme(level?.temaColor || 'amber');
+  const theme = getTheme(level?.temaColor || 'cyan');
   const currentIndex = allVerses.findIndex((v) => v.id === verse.id);
   const prevVerse = currentIndex > 0 ? allVerses[currentIndex - 1] : null;
   const nextVerse = currentIndex < allVerses.length - 1 ? allVerses[currentIndex + 1] : null;
@@ -103,7 +103,7 @@ export default function GameArenaModal({
           exit={{ opacity: 0, scale: 0.94, y: 20 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-4xl rounded-3xl bg-[#0B0D14] border border-white/15 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+          className="relative w-full max-w-4xl rounded-3xl bg-[#070910] border border-white/15 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
         >
           {/* Ambient Top Glow */}
           <div
@@ -119,7 +119,7 @@ export default function GameArenaModal({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono uppercase tracking-widest text-zinc-400">
-                    NIVEL 0{verse.nivel} · MISIÓN 0{verse.semana}
+                    SEMANA 0{verse.nivel} · DESAFÍO 119:9
                   </span>
                   <span className="text-zinc-600">•</span>
                   <span className={`text-xs font-mono font-bold ${theme.accentText}`}>

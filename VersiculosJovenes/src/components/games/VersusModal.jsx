@@ -12,6 +12,15 @@ import {
 import confetti from 'canvas-confetti';
 import { soundFX } from '../../utils/soundEffects';
 
+const SAFE_VERSUS_REFS = [
+  'Salmos 119:9',
+  'Proverbios 3:5',
+  'Josué 1:9',
+  'Filipenses 4:13',
+  'Romanos 12:2',
+  'Efesios 6:10',
+];
+
 export default function VersusModal({ versiculos, activeLevelId, onClose, onAwardXp }) {
   const [stage, setStage] = useState('setup'); // 'setup' | 'battle' | 'winner'
   const [player1, setPlayer1] = useState('Jugador 1');
@@ -31,15 +40,17 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
     ? player1.trim() || 'Jugador 1'
     : player2.trim() || 'Jugador 2';
 
-  // Generate 1v1 questions from current level (or all verses as fallback)
+  // Preguntas 1v1 usando solo versículos ya desbloqueados (completando distractores si hay menos de 4)
   const questions = useMemo(() => {
-    const pool = versiculos.filter((v) => v.nivel === activeLevelId);
-    const safePool = pool.length >= 4 ? pool : versiculos;
+    const safePool = versiculos.length > 0 ? versiculos : [];
+    const hiddenFutureRefs = new Set(['Salmo 51:10', '1 Corintios 10:12', '2 Timoteo 1:7', '2 Timoteo 2:22']);
 
     const built = [];
     for (let i = 0; i < totalRounds; i++) {
-      const target = safePool[Math.floor(Math.random() * safePool.length)];
-      const isKeywordChallenge = i % 2 === 0 && (target.palabrasClave || []).length > 0;
+      const target = safePool[i % safePool.length];
+      if (!target) continue;
+      const isKeywordChallenge =
+        (safePool.length === 1 || i % 2 === 0) && (target.palabrasClave || []).length > 0;
 
       if (isKeywordChallenge) {
         const keyWord =
@@ -63,11 +74,15 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
           options,
         });
       } else {
-        const distractors = versiculos
+        const unlockedRefs = safePool
           .filter((v) => v.referencia !== target.referencia)
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3)
           .map((v) => v.referencia);
+        const extraRefs = SAFE_VERSUS_REFS.filter(
+          (r) => r !== target.referencia && !unlockedRefs.includes(r) && !hiddenFutureRefs.has(r)
+        );
+        const distractors = [...unlockedRefs, ...extraRefs]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
 
         const options = [target.referencia, ...distractors].sort(
           () => Math.random() - 0.5
@@ -191,12 +206,12 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
             {stage === 'setup' && (
               <div className="space-y-6">
                 <p className="text-sm text-zinc-300">
-                  Escribe el nombre de las dos personas que van a competir. Tendréis 3 turnos cada uno para demostrar quién domina mejor los versículos del Nivel 0{activeLevelId}.
+                  Escribe el nombre de las dos personas que van a competir. Tendréis 3 turnos cada uno para demostrar quién domina mejor los versículos abiertos del Desafío 119:9.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 space-y-2">
-                    <label className="text-xs font-mono uppercase text-sky-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-2xl bg-cyan-400/10 border border-cyan-400/35 space-y-2">
+                    <label className="text-xs font-mono uppercase text-cyan-300 flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" /> Persona 1
                     </label>
                     <input
@@ -204,12 +219,12 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                       value={player1}
                       onChange={(e) => setPlayer1(e.target.value)}
                       placeholder="Nombre del Jugador 1"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white font-bold focus:outline-none focus:border-sky-400"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white font-bold focus:outline-none focus:border-cyan-400"
                     />
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
-                    <label className="text-xs font-mono uppercase text-amber-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-2xl bg-coral-400/10 border border-coral-400/35 space-y-2">
+                    <label className="text-xs font-mono uppercase text-coral-300 flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" /> Persona 2
                     </label>
                     <input
@@ -217,14 +232,14 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                       value={player2}
                       onChange={(e) => setPlayer2(e.target.value)}
                       placeholder="Nombre del Jugador 2"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white font-bold focus:outline-none focus:border-amber-400"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white font-bold focus:outline-none focus:border-coral-400"
                     />
                   </div>
                 </div>
 
                 <button
                   onClick={startBattle}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 text-zinc-950 font-extrabold text-base flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01] transition"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-coral-400 text-zinc-950 font-extrabold text-base flex items-center justify-center gap-2 shadow-xl hover:scale-[1.01] transition"
                 >
                   <Play className="w-5 h-5 fill-current" />
                   <span>¡Empezar Duelo ({name1} vs {name2})!</span>
@@ -239,17 +254,17 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                   <div
                     className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
                       isTurnPlayer1
-                        ? 'bg-sky-500/20 border-sky-400 shadow-[0_0_25px_rgba(56,189,248,0.2)]'
+                        ? 'bg-cyan-400/20 border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.2)]'
                         : 'bg-zinc-900/50 border-white/10 opacity-60'
                     }`}
                   >
                     <div>
-                      <span className="text-[10px] font-mono uppercase text-sky-300 block">
+                      <span className="text-[10px] font-mono uppercase text-cyan-300 block">
                         {isTurnPlayer1 ? '⚡ TU TURNO' : 'ESPERANDO'}
                       </span>
                       <span className="text-base font-extrabold text-white">{name1}</span>
                     </div>
-                    <span className="text-2xl font-mono font-extrabold text-sky-400">
+                    <span className="text-2xl font-mono font-extrabold text-cyan-400">
                       {score1}
                     </span>
                   </div>
@@ -257,17 +272,17 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                   <div
                     className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
                       !isTurnPlayer1
-                        ? 'bg-amber-500/20 border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.2)]'
+                        ? 'bg-coral-400/20 border-coral-400 shadow-[0_0_25px_rgba(255,93,108,0.2)]'
                         : 'bg-zinc-900/50 border-white/10 opacity-60'
                     }`}
                   >
                     <div>
-                      <span className="text-[10px] font-mono uppercase text-amber-300 block">
+                      <span className="text-[10px] font-mono uppercase text-coral-300 block">
                         {!isTurnPlayer1 ? '⚡ TU TURNO' : 'ESPERANDO'}
                       </span>
                       <span className="text-base font-extrabold text-white">{name2}</span>
                     </div>
-                    <span className="text-2xl font-mono font-extrabold text-amber-400">
+                    <span className="text-2xl font-mono font-extrabold text-coral-400">
                       {score2}
                     </span>
                   </div>
@@ -286,7 +301,7 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                   <div className="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-100 ${
-                        isTurnPlayer1 ? 'bg-sky-400' : 'bg-amber-400'
+                        isTurnPlayer1 ? 'bg-cyan-400' : 'bg-coral-400'
                       }`}
                       style={{ width: `${timeLeft}%` }}
                     />
@@ -335,12 +350,12 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
 
             {stage === 'winner' && (
               <div className="text-center py-6 space-y-6">
-                <div className="w-16 h-16 rounded-3xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 mx-auto">
+                <div className="w-16 h-16 rounded-3xl bg-cyan-400/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 mx-auto">
                   <Trophy className="w-9 h-9" />
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-mono uppercase tracking-widest text-amber-400">
+                  <span className="text-xs font-mono uppercase tracking-widest text-coral-400">
                     GANADOR DEL DUELO 1 VS 1
                   </span>
                   <h4 className="text-3xl font-display font-extrabold text-white">
@@ -353,14 +368,14 @@ export default function VersusModal({ versiculos, activeLevelId, onClose, onAwar
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                  <div className="p-4 rounded-2xl bg-zinc-900 border border-white/10">
-                    <span className="text-xs font-mono text-sky-400 block">{name1}</span>
+                  <div className="p-4 rounded-2xl bg-zinc-900 border border-cyan-400/25">
+                    <span className="text-xs font-mono text-cyan-400 block">{name1}</span>
                     <span className="text-2xl font-mono font-extrabold text-white">
                       {score1} pts
                     </span>
                   </div>
-                  <div className="p-4 rounded-2xl bg-zinc-900 border border-white/10">
-                    <span className="text-xs font-mono text-amber-400 block">{name2}</span>
+                  <div className="p-4 rounded-2xl bg-zinc-900 border border-coral-400/25">
+                    <span className="text-xs font-mono text-coral-400 block">{name2}</span>
                     <span className="text-2xl font-mono font-extrabold text-white">
                       {score2} pts
                     </span>
