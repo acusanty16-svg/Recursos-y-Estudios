@@ -1,5 +1,5 @@
 import { DEFAULT_PREFERENCES, STORAGE_KEYS } from '../model/constants';
-import type { Preferences } from '../model/types';
+import type { Preferences, TranslationId, UiLanguage } from '../model/types';
 import { appStore } from './store';
 
 const FONT_SCALES: readonly Preferences['fontScale'][] = [1, 1.125, 1.25, 1.5];
@@ -57,6 +57,23 @@ export function updatePreferences(patch: Partial<Preferences>): Preferences {
   return next;
 }
 
+/**
+ * Cambia el idioma de la interfaz y alinea la traducción bíblica activa
+ * para que las lecturas, el versículo del día y el Club de la Lámpara
+ * pasen también a español o inglés automáticamente.
+ */
+export function setUiLanguage(uiLanguage: UiLanguage): Preferences {
+  const current = appStore.getState().preferences;
+  const activeTranslation: TranslationId =
+    uiLanguage === 'en'
+      ? 'NLT'
+      : current.activeTranslation === 'NLT'
+        ? 'RV1960'
+        : current.activeTranslation;
+
+  return updatePreferences({ uiLanguage, activeTranslation });
+}
+
 /** Sincroniza el DOM con las preferencias. Único punto que toca <html>. */
 export function applyPreferences(preferences: Preferences): void {
   const root = document.documentElement;
@@ -65,4 +82,9 @@ export function applyPreferences(preferences: Preferences): void {
   root.style.setProperty('--sv-font-scale', String(preferences.fontScale));
   root.lang = preferences.uiLanguage;
   root.style.colorScheme = preferences.theme;
+
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) {
+    themeMeta.setAttribute('content', preferences.theme === 'dark' ? '#0B0D11' : '#FAF8F4');
+  }
 }

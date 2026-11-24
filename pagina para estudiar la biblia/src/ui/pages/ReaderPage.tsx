@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { formatChapterLabel } from '@model/reference';
+import { motion } from 'motion/react';
+import { formatChapterLabel, toDayKey } from '@model/reference';
+import { getSuggestedPlanDay, getYearPlanDay } from '@model/bibleYearPlan';
 import type { Chapter, HighlightColor, Note, TranslationId, VerseReference } from '@model/types';
 import {
   goToChapter,
@@ -12,6 +14,7 @@ import {
 } from '@controller/app.controller';
 import { loadChapter } from '@controller/bible.service';
 import { updatePreferences } from '@controller/preferences.controller';
+import { toggleYearPlanDay } from '@controller/year-plan.controller';
 import { useAppStore } from '@controller/store';
 import {
   copyVerse,
@@ -24,8 +27,9 @@ import {
   updateNote,
 } from '@controller/notes.controller';
 import { useI18n } from '@ui/hooks/useI18n';
+import { useReaderScrollChrome } from '@ui/hooks/useReaderScrollChrome';
 import { useReadingPosition } from '@ui/hooks/useReadingPosition';
-import { RefreshIcon } from '@ui/components/icons';
+import { CalendarIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '@ui/components/icons';
 import { ChapterReader } from '@ui/reader/ChapterReader';
 import { NoteDialog } from '@ui/reader/NoteDialog';
 import { NoteEditor, type NoteEditorPayload } from '@ui/reader/NoteEditor';
@@ -128,8 +132,21 @@ export function ReaderPage() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape' && !dialog && !referenceOpen && !drawerState) {
+      if (dialog || referenceOpen || drawerState) return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
+        return;
+      }
+      if (event.key === 'Escape') {
         setSelectedVerse(null);
+      } else if (event.key === 'ArrowLeft' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        setPendingVerse(null);
+        previousChapter();
+      } else if (event.key === 'ArrowRight' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        setPendingVerse(null);
+        nextChapter();
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -260,34 +277,61 @@ export function ReaderPage() {
   const showComparison = compareTranslation !== null && comparisonError === null;
   const comparisonReady = comparisonChapter !== null;
 
+  const todayPlanEntry = useMemo(() => getYearPlanDay(getSuggestedPlanDay(state.yearPlanStart, toDayKey())), [state.yearPlanStart]);
+  const isChapterInTodayPlan = todayPlanEntry.readings.some(
+    (item) => item.bookNumber === bookNumber && item.chapter === chapterNumber,
+  );
+  const todayPlanDone = state.yearPlan.some((item) => item.day === todayPlanEntry.day);
+
+  const { scrolled, showFloatingReaderBar } = useReaderScrollChrome(true);
+  const showStickyReaderToolbar = state.preferences.focusMode ? scrolled : showFloatingReaderBar;
+
+  const toolbarProps = {
+    chapterLabel,
+    active: activeTranslation,
+    compare: compareTranslation,
+    currentVerse: readingPosition.activeVerse,
+    verseCount,
+    progress: readingPosition.progress,
+    notesCount: chapterNotes.length,
+    onOpenReference: () => setReferenceOpen(true),
+    onOpenNotes: () => setDrawerState({ tab: 'notes', focusVerse: selectedVerse ?? readingPosition.activeVerse }),
+    onOpenCommentary: () =>
+      setDrawerState({ tab: 'commentary', focusVerse: selectedVerse ?? readingPosition.activeVerse }),
+    onSelectTranslation: handleSelectTranslation,
+    onCompare: setCompareTranslation,
+    onSwapTranslations: handleSwapTranslations,
+    onJumpToVerse: (verse: number) => {
+      scrollToVerse(verse);
+      setSelectedVerse(verse);
+    },
+    onPrevChapter: handlePrevChapter,
+    onNextChapter: handleNextChapter,
+    onFocus: () => updatePreferences({ focusMode: true }),
+  } as const;
+
   return (
     <div>
       <h1 className="sr-only">{t('reader.title')}</h1>
 
-      <ReaderToolbar
-        chapterLabel={chapterLabel}
-        active={activeTranslation}
-        compare={compareTranslation}
-        currentVerse={readingPosition.activeVerse}
-        verseCount={verseCount}
-        progress={readingPosition.progress}
-        notesCount={chapterNotes.length}
-        onOpenReference={() => setReferenceOpen(true)}
-        onOpenNotes={() => setDrawerState({ tab: 'notes', focusVerse: selectedVerse ?? readingPosition.activeVerse })}
-        onOpenCommentary={() =>
-          setDrawerState({ tab: 'commentary', focusVerse: selectedVerse ?? readingPosition.activeVerse })
-        }
-        onSelectTranslation={handleSelectTranslation}
-        onCompare={setCompareTranslation}
-        onSwapTranslations={handleSwapTranslations}
-        onJumpToVerse={(verse) => {
-          scrollToVerse(verse);
-          setSelectedVerse(verse);
+      <ReaderToolbar {...toolbarProps} />
+
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: showStickyReaderToolbar ? 1 : 0,
+          y: showStickyReaderToolbar ? 0 : '-105%',
         }}
-        onPrevChapter={handlePrevChapter}
-        onNextChapter={handleNextChapter}
-        onFocus={() => updatePreferences({ focusMode: true })}
-      />
+        transition={{ type: 'spring', bounce: 0, duration: 0.28 }}
+        aria-hidden={!showStickyReaderToolbar}
+        inert={!showStickyReaderToolbar}
+        className={[
+          'fixed inset-x-0 top-0 z-30',
+          showStickyReaderToolbar ? 'pointer-events-auto' : 'pointer-events-none',
+        ].join(' ')}
+      >
+        <ReaderToolbar {...toolbarProps} floating />
+      </motion.div>
 
       <div className={`mx-auto mt-5 ${showComparison ? 'max-w-5xl' : 'max-w-3xl'}`}>
         {compareTranslation && !comparisonReady && !comparisonError ? (
@@ -326,25 +370,66 @@ export function ReaderPage() {
         ) : null}
 
         {chapter ? (
-          <ChapterReader
-            chapter={chapter}
-            comparison={showComparison && comparisonReady ? comparisonChapter : null}
-            comparisonTranslation={showComparison && comparisonReady ? compareTranslation : null}
-            activeVerse={readingPosition.activeVerse}
-            selectedVerse={selectedVerse}
-            onSelectVerse={(verse) => setSelectedVerse((prev) => (prev === verse ? null : verse))}
-            notes={state.notes}
-            highlights={state.highlights}
-            bookmarks={state.bookmarks}
-            memorizedVerses={state.memorizedVerses}
-            onCopy={handleCopy}
-            onToggleBookmark={handleToggleBookmark}
-            onToggleMemorized={handleToggleMemorized}
-            onHighlight={handleHighlight}
-            onAddNote={openCreate}
-            onEditNote={openEdit}
-            onOpenCommentary={(verseNumber) => setDrawerState({ tab: 'commentary', focusVerse: verseNumber })}
-          />
+          <>
+            <ChapterReader
+              chapter={chapter}
+              comparison={showComparison && comparisonReady ? comparisonChapter : null}
+              comparisonTranslation={showComparison && comparisonReady ? compareTranslation : null}
+              activeVerse={readingPosition.activeVerse}
+              selectedVerse={selectedVerse}
+              onSelectVerse={(verse) => setSelectedVerse((prev) => (prev === verse ? null : verse))}
+              notes={state.notes}
+              highlights={state.highlights}
+              bookmarks={state.bookmarks}
+              memorizedVerses={state.memorizedVerses}
+              onCopy={handleCopy}
+              onToggleBookmark={handleToggleBookmark}
+              onToggleMemorized={handleToggleMemorized}
+              onHighlight={handleHighlight}
+              onAddNote={openCreate}
+              onEditNote={openEdit}
+              onOpenCommentary={(verseNumber) => setDrawerState({ tab: 'commentary', focusVerse: verseNumber })}
+            />
+
+            <nav
+              aria-label={t('reader.title')}
+              className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-navy-900/10 pt-5 dark:border-parchment-100/10"
+            >
+              <button
+                type="button"
+                onClick={handlePrevChapter}
+                className="sv-btn sv-btn-ghost border border-navy-900/12 text-xs dark:border-parchment-100/15"
+              >
+                <ChevronLeftIcon size={15} aria-hidden="true" />
+                {t('reader.prev')}
+              </button>
+
+              {isChapterInTodayPlan ? (
+                <button
+                  type="button"
+                  onClick={() => void toggleYearPlanDay(todayPlanEntry.day)}
+                  className={`sv-btn text-xs ${
+                    todayPlanDone
+                      ? 'border border-sage-500/40 bg-sage-500/15 text-sage-500 dark:text-sage-300'
+                      : 'sv-btn-primary'
+                  }`}
+                >
+                  {todayPlanDone ? <CheckIcon size={14} aria-hidden="true" /> : <CalendarIcon size={14} aria-hidden="true" />}
+                  {t('plan.dayLabel')} {todayPlanEntry.day}:{' '}
+                  {todayPlanDone ? t('plan.completed') : t('plan.markCompleted')}
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={handleNextChapter}
+                className="sv-btn sv-btn-ghost border border-navy-900/12 text-xs dark:border-parchment-100/15"
+              >
+                {t('reader.next')}
+                <ChevronRightIcon size={15} aria-hidden="true" />
+              </button>
+            </nav>
+          </>
         ) : null}
       </div>
 

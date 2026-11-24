@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { AnimatePresence, MotionConfig } from 'motion/react';
+import { MotionConfig } from 'motion/react';
 import { ROUTES } from '@model/constants';
 import { REMINDERS_MOCK } from '@rsc';
 import { bootstrapApp } from '@controller/app.controller';
@@ -52,23 +52,21 @@ export function App() {
     <MotionConfig reducedMotion="user">
       <ErrorBoundary language={preferences.uiLanguage}>
         <AppShell>
-          <AnimatePresence mode="wait">
-            <EditorialFade key={location.pathname}>
-              <Suspense fallback={<Spinner />}>
-                <Routes location={location}>
-                  <Route path={ROUTES.dashboard} element={<DashboardPage />} />
-                  <Route path={ROUTES.reader} element={<ReaderPage />} />
-                  <Route path={ROUTES.plan} element={<YearPlanPage />} />
-                  <Route path={ROUTES.notes} element={<NotesPage />} />
-                  <Route path={ROUTES.music} element={<MusicPage />} />
-                  <Route path={ROUTES.import} element={<ImportPage />} />
-                  <Route path={ROUTES.api} element={<ApiExplorerPage />} />
-                  <Route path={ROUTES.settings} element={<SettingsPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-              </Suspense>
-            </EditorialFade>
-          </AnimatePresence>
+          <EditorialFade key={location.pathname}>
+            <Suspense fallback={<Spinner />}>
+              <Routes location={location}>
+                <Route path={ROUTES.dashboard} element={<DashboardPage />} />
+                <Route path={ROUTES.reader} element={<ReaderPage />} />
+                <Route path={ROUTES.plan} element={<YearPlanPage />} />
+                <Route path={ROUTES.notes} element={<NotesPage />} />
+                <Route path={ROUTES.music} element={<MusicPage />} />
+                <Route path={ROUTES.import} element={<ImportPage />} />
+                <Route path={ROUTES.api} element={<ApiExplorerPage />} />
+                <Route path={ROUTES.settings} element={<SettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
+          </EditorialFade>
         </AppShell>
         <Toast />
       </ErrorBoundary>

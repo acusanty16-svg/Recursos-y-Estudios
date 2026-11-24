@@ -128,6 +128,45 @@ function splitIntoChunks(text: string, maxLen = 1200): string[] {
   return chunks;
 }
 
+function translationEsKey(bookNumber: number, chapter: number): string {
+  return `commentary:mh-es:${bookNumber}:${chapter}`;
+}
+
+/** Recupera traducciones al español previamente guardadas offline en IndexedDB. */
+export async function loadStoredCommentaryTranslation(
+  bookNumber: number,
+  chapter: number,
+): Promise<Record<string, string>> {
+  try {
+    const db = await getDb();
+    const row = await db.get('meta', translationEsKey(bookNumber, chapter));
+    if (!row) return {};
+    const parsed: unknown = JSON.parse(row.value);
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    const safe: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof v === 'string') safe[k] = v;
+    }
+    return safe;
+  } catch {
+    return {};
+  }
+}
+
+/** Guarda en IndexedDB las secciones ya traducidas al español para acceso instantáneo offline. */
+export async function saveStoredCommentaryTranslation(
+  bookNumber: number,
+  chapter: number,
+  map: Record<string, string>,
+): Promise<void> {
+  try {
+    const db = await getDb();
+    await db.put('meta', { key: translationEsKey(bookNumber, chapter), value: JSON.stringify(map) });
+  } catch {
+    // No bloquea si el navegador impide escritura en IndexedDB.
+  }
+}
+
 /** Traduce bajo demanda un fragmento de Matthew Henry (inglés → español) con caché en memoria. */
 export async function translateCommentaryEnToEs(text: string): Promise<string | null> {
   const clean = text.trim();

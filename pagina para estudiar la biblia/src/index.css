@@ -121,6 +121,32 @@ html.dark {
     border-radius: 0.25rem;
   }
 
+  h1,
+  h2 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  select option {
+    background-color: var(--surface);
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .sv-reader-toolbar {
+      background-color: var(--surface) !important;
+      backdrop-filter: none !important;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .sv-card,
+    .sv-card-hero,
+    .sv-card-interactive {
+      border-color: currentColor;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -155,10 +181,12 @@ html.dark {
 
   .sv-card-hero {
     @apply relative overflow-hidden rounded-2xl border border-navy-900/10 bg-white p-6 shadow-[0_8px_30px_-18px_rgb(0_0_0_/_0.14)] sm:p-8;
+    background-image: radial-gradient(36rem 18rem at 100% 0%, color-mix(in oklab, var(--color-ember-400) 9%, transparent), transparent 70%);
   }
 
   .dark .sv-card-hero {
     @apply border-ember-400/20 bg-navy-900 shadow-[0_18px_40px_-24px_rgb(0_0_0_/_0.75)];
+    background-image: radial-gradient(36rem 18rem at 100% 0%, color-mix(in oklab, var(--color-ember-400) 11%, transparent), transparent 72%);
   }
 
   .sv-card-interactive {
@@ -174,7 +202,9 @@ html.dark {
   }
 
   .sv-btn {
-    @apply inline-flex min-h-10 min-w-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.98];
+    @apply inline-flex min-h-10 min-w-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-[transform,background-color,border-color,color,opacity] duration-150 active:scale-[0.975];
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .sv-btn-primary {
@@ -243,9 +273,9 @@ html.dark {
     background-color: color-mix(in oklab, var(--sv-highlight-color) 24%, transparent);
   }
 
-  /* Lector: barra fija y columnas de comparación. */
+  /* Lector: barra translúcida esmerilada (estilo iOS/editorial) y columnas de comparación. */
   .sv-reader-toolbar {
-    @apply border-b border-navy-900/10 bg-parchment-50 dark:border-parchment-100/10 dark:bg-navy-950;
+    @apply border-b border-navy-900/10 bg-parchment-50/85 backdrop-blur-xl backdrop-saturate-150 dark:border-parchment-100/10 dark:bg-navy-950/85;
   }
 
   .sv-column-label {

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@model/constants';
 import { useAppStore, showToast } from '@controller/store';
-import { updatePreferences } from '@controller/preferences.controller';
+import { setUiLanguage, updatePreferences } from '@controller/preferences.controller';
 import { clearAllUserData, clearChapterCache } from '@controller/idb';
 import { requestNotificationPermission } from '@controller/notifications.controller';
 import { isFileSystemAccessSupported } from '@controller/fs-access.service';
@@ -19,7 +21,7 @@ import { useI18n } from '@ui/hooks/useI18n';
 import { useInstallPrompt } from '@ui/hooks/useInstallPrompt';
 import { PageHeader } from '@ui/components/PageHeader';
 import { GoogleLogo } from '@ui/components/GoogleLogo';
-import { CheckIcon, DownloadIcon, RefreshIcon, TrashIcon } from '@ui/components/icons';
+import { CheckIcon, CodeIcon, DownloadIcon, RefreshIcon, TrashIcon, UploadIcon } from '@ui/components/icons';
 
 const FONT_OPTIONS: readonly { readonly value: 1 | 1.125 | 1.25 | 1.5; readonly label: string }[] = [
   { value: 1, label: 'A' },
@@ -123,7 +125,7 @@ export function SettingsPage() {
               id="settings-language"
               className="sv-input"
               value={preferences.uiLanguage}
-              onChange={(event) => updatePreferences({ uiLanguage: event.target.value === 'en' ? 'en' : 'es' })}
+              onChange={(event) => setUiLanguage(event.target.value === 'en' ? 'en' : 'es')}
             >
               <option value="es">Español</option>
               <option value="en">English</option>
@@ -412,6 +414,14 @@ export function SettingsPage() {
         </dl>
 
         <div className="mt-5 flex flex-wrap gap-2">
+          <Link to={ROUTES.import} className="sv-btn sv-btn-ghost border border-navy-900/15 dark:border-parchment-100/15">
+            <UploadIcon size={16} aria-hidden="true" />
+            {t('nav.import')}
+          </Link>
+          <Link to={ROUTES.api} className="sv-btn sv-btn-ghost border border-navy-900/15 dark:border-parchment-100/15">
+            <CodeIcon size={16} aria-hidden="true" />
+            {t('nav.api')}
+          </Link>
           <button type="button" className="sv-btn sv-btn-ghost border border-navy-900/15 dark:border-parchment-100/15" onClick={() => void handleClearCache()}>
             <TrashIcon size={16} />
             {t('settings.clearCache')}

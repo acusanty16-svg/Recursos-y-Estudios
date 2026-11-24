@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatChapterLabel } from '@model/reference';
 import { resolveCommentaryTarget, type ChapterCommentary } from '@model/commentary';
-import { loadMatthewHenryCommentary, translateCommentaryEnToEs } from '@controller/commentary.service';
+import {
+  loadMatthewHenryCommentary,
+  loadStoredCommentaryTranslation,
+  saveStoredCommentaryTranslation,
+  translateCommentaryEnToEs,
+} from '@controller/commentary.service';
 import { useI18n } from '@ui/hooks/useI18n';
 import { BookIcon, ExternalIcon, RefreshIcon, SparklesIcon } from '@ui/components/icons';
 
@@ -30,11 +35,18 @@ export function CommentaryPanel({ bookNumber, chapter, focusVerse }: CommentaryP
     setCommentary(null);
     setErrorMsg('');
     setShowSpanish(false);
+    setTranslatedMap({});
     setTranslateFailed(false);
     setShowBookIntro(false);
 
-    void loadMatthewHenryCommentary(bookNumber, chapter).then((res) => {
+    void Promise.all([
+      loadMatthewHenryCommentary(bookNumber, chapter),
+      loadStoredCommentaryTranslation(bookNumber, chapter),
+    ]).then(([res, storedEs]) => {
       if (cancelled) return;
+      if (Object.keys(storedEs).length > 0) {
+        setTranslatedMap(storedEs);
+      }
       if (res.ok) {
         setCommentary(res.value);
         setStatus('ready');
@@ -117,7 +129,9 @@ export function CommentaryPanel({ bookNumber, chapter, focusVerse }: CommentaryP
 
     setTranslating(false);
     if (Object.keys(nextEntries).length > 0) {
-      setTranslatedMap((prev) => ({ ...prev, ...nextEntries }));
+      const merged = { ...translatedMap, ...nextEntries };
+      setTranslatedMap(merged);
+      void saveStoredCommentaryTranslation(bookNumber, chapter, merged);
     }
     if (hadError && Object.keys(nextEntries).length === 0) {
       setTranslateFailed(true);
@@ -199,10 +213,37 @@ export function CommentaryPanel({ bookNumber, chapter, focusVerse }: CommentaryP
           <button
             type="button"
             onClick={() => scrollToTarget('smooth')}
-            className="shrink-0 rounded-lg border border-ember-500/35 bg-white/80 px-2.5 py-1 font-semibold text-ember-700 transition hover:bg-white dark:border-ember-400/40 dark:bg-navy-900/70 dark:text-ember-300 dark:hover:bg-navy-900"
+            className="shrink-0 rounded-lg border border-ember-500/35 bg-white/80 px-2.5 py-1 font-semibold tabular-nums text-ember-700 transition hover:bg-white dark:border-ember-400/40 dark:bg-navy-900/70 dark:text-ember-300 dark:hover:bg-navy-900"
           >
             {t('commentary.jumpToFocused').replace('{verse}', String(targetResolution.verseNumber))}
           </button>
+        </div>
+      ) : null}
+
+      {commentary.sections.some((sec) => sec.verseNumber !== null) ? (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sv-scroll">
+          {commentary.sections.map((sec, idx) => {
+            if (sec.verseNumber === null) return null;
+            const isActiveChip = targetResolution !== null && targetResolution.index === idx;
+            return (
+              <button
+                key={`chip-${sec.verseNumber}-${idx}`}
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById(`mh-sec-${idx}`);
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className={[
+                  'shrink-0 touch-manipulation rounded-lg border px-2 py-1 font-mono text-[11px] font-semibold tabular-nums transition-colors',
+                  isActiveChip
+                    ? 'border-ember-500 bg-ember-500/15 text-ember-700 dark:border-ember-400 dark:text-ember-300'
+                    : 'border-navy-900/10 bg-white/70 text-navy-600 hover:border-ember-500/40 dark:border-parchment-100/10 dark:bg-navy-800/60 dark:text-parchment-200',
+                ].join(' ')}
+              >
+                v.{sec.verseNumber}
+              </button>
+            );
+          })}
         </div>
       ) : null}
 

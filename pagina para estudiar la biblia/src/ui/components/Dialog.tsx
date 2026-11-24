@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { motion } from 'motion/react';
 import { useI18n } from '@ui/hooks/useI18n';
 import { useVisualViewport } from '@ui/hooks/useVisualViewport';
 import { CloseIcon } from './icons';
@@ -35,7 +36,7 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
 
   return createPortal(
     <div
-      className="fixed inset-x-0 z-50 flex items-end justify-center bg-navy-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      className="fixed inset-x-0 z-50 flex items-end justify-center bg-navy-950/50 p-0 backdrop-blur-md sm:items-center sm:p-6"
       style={{ top: viewport.offsetTop, height: viewport.height, bottom: 'auto' }}
       role="dialog"
       aria-modal="true"
@@ -44,9 +45,12 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 14, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', bounce: 0, duration: 0.26 }}
         className={[
-          'sv-dialog-panel max-h-full w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-navy-900/10 bg-parchment-50 p-5 shadow-2xl sv-scroll sm:rounded-2xl dark:border-parchment-100/15 dark:bg-navy-900',
+          'max-h-full w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-navy-900/10 bg-parchment-50 p-5 shadow-2xl sv-scroll sm:rounded-2xl dark:border-parchment-100/15 dark:bg-navy-900',
           size === 'lg' ? 'max-w-2xl' : 'max-w-lg',
         ].join(' ')}
       >
@@ -69,7 +73,7 @@ export function Dialog({ title, subtitle, onClose, children, size = 'md' }: Dial
           </button>
         </div>
         {children}
-      </div>
+      </motion.div>
     </div>,
     document.body,
   );

@@ -1,9 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@model/constants';
+import type { TranslationId } from '@model/types';
 import { LAMP_CLUB_LEVELS, type LampVerseEntry } from '@rsc';
 import { goToChapter } from '@controller/app.controller';
-import { fetchLampVerseText, markLampVerseMastered, unmarkLampVerseMastered } from '@controller/lamp-club.controller';
+import {
+  fetchLampVerseText,
+  formatLampReference,
+  markLampVerseMastered,
+  resolveLampTranslation,
+  unmarkLampVerseMastered,
+} from '@controller/lamp-club.controller';
+import { updatePreferences } from '@controller/preferences.controller';
 import { useAppStore } from '@controller/store';
 import { useI18n } from '@ui/hooks/useI18n';
 import { Dialog } from '@ui/components/Dialog';
@@ -46,8 +54,15 @@ export function LampClubPanel() {
   const [seed, setSeed] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checkedScore, setCheckedScore] = useState<number | null>(null);
+  const [bilingual, setBilingual] = useState(false);
+  const loadedKeysRef = useRef(new Set<string>());
 
-  const activeTranslation = state.preferences.activeTranslation;
+  const activeTranslation = resolveLampTranslation(language, state.preferences.activeTranslation);
+  const secondaryTranslation: TranslationId | null = bilingual
+    ? activeTranslation === 'NLT'
+      ? 'RV1960'
+      : 'NLT'
+    : null;
   const masteredMap = useMemo(() => new Map(state.lampClub.map((item) => [item.id, item])), [state.lampClub]);
 
   const currentLevel = useMemo(
@@ -57,19 +72,45 @@ export function LampClubPanel() {
 
   useEffect(() => {
     let cancelled = false;
+    const translationsToLoad: TranslationId[] = secondaryTranslation
+      ? [activeTranslation, secondaryTranslation]
+      : [activeTranslation];
+
     for (const entry of currentLevel.verses) {
-      const cacheKey = `${entry.id}:${activeTranslation}`;
-      if (verseTexts[cacheKey]) continue;
-      void fetchLampVerseText(entry, activeTranslation).then((text) => {
-        if (!cancelled && text) {
-          setVerseTexts((prev) => ({ ...prev, [cacheKey]: text }));
-        }
-      });
+      for (const translationId of translationsToLoad) {
+        const cacheKey = `${entry.id}:${translationId}`;
+        if (loadedKeysRef.current.has(cacheKey)) continue;
+        loadedKeysRef.current.add(cacheKey);
+        void fetchLampVerseText(entry, translationId).then((text) => {
+          if (cancelled) {
+            loadedKeysRef.current.delete(cacheKey);
+            return;
+          }
+          if (text) {
+            setVerseTexts((prev) => ({ ...prev, [cacheKey]: text }));
+          } else {
+            loadedKeysRef.current.delete(cacheKey);
+          }
+        });
+      }
     }
     return () => {
       cancelled = true;
     };
-  }, [currentLevel, activeTranslation, verseTexts]);
+  }, [currentLevel, activeTranslation, secondaryTranslation]);
+
+  useEffect(() => {
+    setAnswers({});
+    setCheckedScore(null);
+    setRevealed(false);
+  }, [activeTranslation]);
+
+  const switchLampVersion = (translationId: TranslationId): void => {
+    updatePreferences({
+      uiLanguage: translationId === 'NLT' ? 'en' : 'es',
+      activeTranslation: translationId,
+    });
+  };
 
   const startPractice = (entry: LampVerseEntry): void => {
     setPracticing(entry);
@@ -120,12 +161,46 @@ export function LampClubPanel() {
             </h2>
             <p className="mt-1 text-sm text-navy-600 dark:text-parchment-200/80">{t('lamp.subtitle')}</p>
           </div>
-          <div className="w-full sm:w-56">
+          <div className="w-full space-y-2.5 sm:w-auto sm:min-w-[14rem]">
             <div className="h-2.5 overflow-hidden rounded-full bg-navy-900/10 dark:bg-parchment-100/10">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-ember-500 to-gold-400 transition-all duration-300"
                 style={{ width: `${Math.round((totalMastered / Math.max(1, totalVerses)) * 100)}%` }}
               />
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-1.5" role="group" aria-label="Versión bíblica">
+              {(['RV1960', 'NTV', 'NLT'] as const).map((ver) => {
+                const selected = activeTranslation === ver;
+                return (
+                  <button
+                    key={ver}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => switchLampVersion(ver)}
+                    className={[
+                      'touch-manipulation rounded-lg border px-2 py-1 text-[11px] font-semibold transition-colors',
+                      selected
+                        ? 'border-ember-500 bg-ember-500/15 text-ember-700 dark:text-ember-300'
+                        : 'border-navy-900/10 text-navy-600 hover:bg-navy-900/5 dark:border-parchment-100/15 dark:text-parchment-200/80 dark:hover:bg-parchment-100/10',
+                    ].join(' ')}
+                  >
+                    {ver === 'NLT' ? 'EN · NLT' : `ES · ${ver}`}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                aria-pressed={bilingual}
+                onClick={() => setBilingual((prev) => !prev)}
+                className={[
+                  'touch-manipulation rounded-lg border px-2 py-1 text-[11px] font-semibold transition-colors',
+                  bilingual
+                    ? 'border-sky-500/50 bg-sky-500/15 text-sky-700 dark:text-sky-300'
+                    : 'border-navy-900/10 text-navy-600 hover:bg-navy-900/5 dark:border-parchment-100/15 dark:text-parchment-200/80 dark:hover:bg-parchment-100/10',
+                ].join(' ')}
+              >
+                ES + EN
+              </button>
             </div>
           </div>
         </div>
@@ -141,7 +216,7 @@ export function LampClubPanel() {
               type="button"
               onClick={() => setSelectedLevel(lvl.level)}
               className={[
-                'rounded-2xl border p-4 text-left transition-all',
+                'touch-manipulation rounded-2xl border p-4 text-left transition-colors',
                 isSelected
                   ? 'border-ember-500 bg-ember-500/10 shadow-md ring-1 ring-ember-500/30 dark:bg-ember-500/15'
                   : 'border-navy-900/10 bg-white/65 hover:border-ember-500/30 dark:border-parchment-100/10 dark:bg-navy-900/55',
@@ -151,7 +226,7 @@ export function LampClubPanel() {
                 <span className="text-xs font-semibold uppercase tracking-wider text-ember-700 dark:text-ember-300">
                   {language === 'es' ? lvl.titleEs : lvl.titleEn}
                 </span>
-                <span className="rounded-full bg-navy-900/5 px-2 py-0.5 text-xs font-semibold text-navy-700 dark:bg-parchment-100/10 dark:text-parchment-100">
+                <span className="rounded-full bg-navy-900/5 px-2 py-0.5 text-xs font-semibold tabular-nums text-navy-700 dark:bg-parchment-100/10 dark:text-parchment-100">
                   {count}/{lvl.verses.length}
                 </span>
               </div>
@@ -173,6 +248,7 @@ export function LampClubPanel() {
         {currentLevel.verses.map((entry) => {
           const mastered = masteredMap.get(entry.id);
           const text = verseTexts[`${entry.id}:${activeTranslation}`];
+          const secondaryText = secondaryTranslation ? verseTexts[`${entry.id}:${secondaryTranslation}`] : undefined;
 
           return (
             <li
@@ -185,10 +261,16 @@ export function LampClubPanel() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="font-serif text-lg font-medium text-navy-900 dark:text-parchment-50">
-                      {entry.referenceLabel}
+                      {formatLampReference(entry, language)}
+                      {bilingual ? (
+                        <span className="ml-2 text-sm font-normal text-navy-400 dark:text-parchment-300/60">
+                          · {formatLampReference(entry, language === 'es' ? 'en' : 'es')}
+                        </span>
+                      ) : null}
                     </h3>
                     <p className="text-[11px] font-semibold uppercase tracking-widest text-navy-400 dark:text-parchment-300/60">
                       {activeTranslation}
+                      {secondaryTranslation ? ` · ${secondaryTranslation}` : ''}
                     </p>
                   </div>
 
@@ -198,7 +280,7 @@ export function LampClubPanel() {
                       onClick={() => void unmarkLampVerseMastered(entry.id)}
                       className="inline-flex items-center gap-1 rounded-full bg-sage-500/15 px-2.5 py-1 text-xs font-semibold text-sage-500 dark:text-sage-300"
                     >
-                      <CheckIcon size={13} />
+                      <CheckIcon size={13} aria-hidden="true" />
                       {t('lamp.mastered')}
                     </button>
                   ) : null}
@@ -207,6 +289,17 @@ export function LampClubPanel() {
                 <p className="sv-scripture mt-3 text-base text-navy-800 dark:text-parchment-100">
                   {text ?? <span className="text-xs opacity-60">{t('lamp.loadText')}</span>}
                 </p>
+
+                {secondaryTranslation ? (
+                  <div className="mt-3 border-t border-navy-900/10 pt-2.5 dark:border-parchment-100/10">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-ember-700 dark:text-ember-300">
+                      {secondaryTranslation}
+                    </span>
+                    <p className="sv-scripture mt-1 text-sm text-navy-600 dark:text-parchment-200/85">
+                      {secondaryText ?? <span className="text-xs opacity-60">{t('lamp.loadText')}</span>}
+                    </p>
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex flex-wrap gap-2 pt-2">
@@ -238,7 +331,7 @@ export function LampClubPanel() {
 
       {practicing ? (
         <Dialog
-          title={`${t('lamp.practiceTitle')} · ${practicing.referenceLabel}`}
+          title={`${t('lamp.practiceTitle')} · ${formatLampReference(practicing, language)}`}
           subtitle={activeTranslation}
           onClose={() => setPracticing(null)}
           size="lg"
@@ -341,7 +434,7 @@ export function LampClubPanel() {
               <div className="space-y-4">
                 <div className="rounded-xl border border-navy-900/10 bg-white/70 p-6 text-center dark:border-parchment-100/15 dark:bg-navy-950/60">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ember-600 dark:text-ember-300">
-                    {practicing.referenceLabel}
+                    {formatLampReference(practicing, language)}
                   </p>
                   {revealed ? (
                     <p className="sv-scripture mx-auto mt-4 text-navy-900 dark:text-parchment-50">

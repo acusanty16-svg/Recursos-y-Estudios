@@ -22,6 +22,7 @@ interface ReaderToolbarProps {
   readonly verseCount: number;
   readonly progress: number;
   readonly notesCount: number;
+  readonly floating?: boolean | undefined;
   readonly onOpenReference: () => void;
   readonly onOpenNotes: () => void;
   readonly onOpenCommentary?: (() => void) | undefined;
@@ -42,6 +43,7 @@ export function ReaderToolbar({
   verseCount,
   progress,
   notesCount,
+  floating = false,
   onOpenReference,
   onOpenNotes,
   onOpenCommentary,
@@ -78,8 +80,14 @@ export function ReaderToolbar({
   }, [verseOpen]);
 
   return (
-    <div className="sv-reader-toolbar sticky top-0 z-30 -mx-4 px-4 pb-2 pt-2 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
-      <div className="flex items-center gap-2">
+    <div
+      className={
+        floating
+          ? 'sv-reader-toolbar relative px-4 pb-2 pt-2 shadow-[0_8px_28px_-18px_rgb(0_0_0_/_0.25)] sm:px-6 lg:px-10'
+          : 'relative mb-5 border-b border-navy-900/10 pb-3 dark:border-parchment-100/10'
+      }
+    >
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-2">
         <Link to={ROUTES.dashboard} className="shrink-0 lg:hidden" aria-label={t('app.name')}>
           <BrandMark size={30} />
         </Link>
@@ -111,7 +119,7 @@ export function ReaderToolbar({
           <div className="relative shrink-0" ref={verseMenuRef}>
             <button
               type="button"
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-navy-900/10 bg-white/50 px-2.5 text-xs font-semibold text-navy-700 transition-colors hover:bg-white dark:border-parchment-100/10 dark:bg-navy-900/60 dark:text-parchment-200 dark:hover:bg-navy-800"
+              className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-navy-900/10 bg-white/60 px-2.5 text-xs font-semibold tabular-nums text-navy-700 transition-colors hover:bg-white dark:border-parchment-100/10 dark:bg-navy-900/60 dark:text-parchment-200 dark:hover:bg-navy-800"
               onClick={() => setVerseOpen((open) => !open)}
               aria-expanded={verseOpen}
               aria-haspopup="true"
@@ -119,7 +127,7 @@ export function ReaderToolbar({
             >
               <span className="text-ember-600 dark:text-ember-300">v.</span>
               {currentVerse}
-              <ChevronDownIcon size={12} className="opacity-60" />
+              <ChevronDownIcon size={12} className="opacity-60" aria-hidden="true" />
             </button>
 
             {verseOpen ? (
@@ -128,11 +136,11 @@ export function ReaderToolbar({
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-navy-500 dark:text-parchment-300/70">
                     {t('reader.versePicker')}
                   </p>
-                  <p className="text-[11px] text-navy-400 dark:text-parchment-300/50">
+                  <p className="text-[11px] tabular-nums text-navy-400 dark:text-parchment-300/50">
                     {currentVerse} {t('reader.chapterOf')} {verseCount}
                   </p>
                 </div>
-                <div className="grid max-h-60 grid-cols-6 gap-1 overflow-y-auto pr-1 sv-scroll sm:grid-cols-8">
+                <div className="grid max-h-60 grid-cols-6 gap-1 overflow-y-auto overscroll-contain pr-1 sv-scroll sm:grid-cols-8">
                   {Array.from({ length: verseCount }, (_, index) => index + 1).map((number) => (
                     <button
                       key={number}
@@ -143,7 +151,7 @@ export function ReaderToolbar({
                       }}
                       aria-current={number === currentVerse ? 'true' : undefined}
                       className={[
-                        'inline-flex size-9 items-center justify-center rounded-md text-xs font-medium transition-colors',
+                        'inline-flex size-9 touch-manipulation items-center justify-center rounded-md text-xs font-medium tabular-nums transition-colors',
                         number === currentVerse
                           ? 'bg-ember-600 text-white dark:bg-ember-500'
                           : 'text-navy-700 hover:bg-navy-900/5 dark:text-parchment-200 dark:hover:bg-parchment-100/10',
@@ -210,7 +218,7 @@ export function ReaderToolbar({
         </div>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-0.5 sv-scroll">
+      <div className="mx-auto mt-2 flex w-full max-w-6xl items-center gap-2 overflow-x-auto pb-0.5 sv-scroll">
         <button
           type="button"
           className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy-500 transition-colors hover:bg-navy-900/5 sm:hidden dark:text-parchment-300/80 dark:hover:bg-parchment-100/10"
@@ -238,15 +246,17 @@ export function ReaderToolbar({
         </button>
       </div>
 
-      <div
-        className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-navy-900/5 dark:bg-parchment-100/10"
-        aria-hidden="true"
-      >
+      {floating ? (
         <div
-          className="sv-progress h-full w-full bg-ember-500 dark:bg-ember-400"
-          style={{ transform: `scaleX(${progress})` }}
-        />
-      </div>
+          className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-navy-900/5 dark:bg-parchment-100/10"
+          aria-hidden="true"
+        >
+          <div
+            className="sv-progress h-full w-full bg-ember-500 dark:bg-ember-400"
+            style={{ transform: `scaleX(${progress})` }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

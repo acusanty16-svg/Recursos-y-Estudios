@@ -1,10 +1,32 @@
 import type { LampVerseEntry } from '../rsc';
-import type { LampClubProgress, TranslationId } from '../model/types';
+import { formatChapterLabel } from '../model/reference';
+import type { LampClubProgress, TranslationId, UiLanguage } from '../model/types';
 import { translate } from '../i18n';
 import { loadChapter } from './bible.service';
 import { deleteLampClub, putLampClub } from './idb';
 import { appStore, showToast } from './store';
 import { notifyLocalChange, recordDeletion } from './sync-events';
+
+/**
+ * Traducción efectiva para los versículos del Club de la Lámpara según el idioma
+ * activo de la interfaz (`es` → RV1960/NTV; `en` → NLT).
+ */
+export function resolveLampTranslation(
+  uiLanguage: UiLanguage,
+  preferredTranslation: TranslationId,
+): TranslationId {
+  if (uiLanguage === 'en') return 'NLT';
+  return preferredTranslation === 'NTV' ? 'NTV' : 'RV1960';
+}
+
+/** Etiqueta de referencia localizada del pasaje (p. ej. "San Juan 3:16" o "John 3:16"). */
+export function formatLampReference(entry: LampVerseEntry, language: UiLanguage): string {
+  if (language === 'es') return entry.referenceLabel;
+  const base = formatChapterLabel(entry.bookNumber, entry.chapter, 'en');
+  return entry.verseEnd > entry.verseStart
+    ? `${base}:${entry.verseStart}-${entry.verseEnd}`
+    : `${base}:${entry.verseStart}`;
+}
 
 /** Obtiene el texto real (RV1960 / NTV / NLT) de un versículo o rango del Club de la Lámpara. */
 export async function fetchLampVerseText(
