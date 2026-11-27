@@ -1,65 +1,37 @@
 # Recursos y Estudios
 
----
-
-## Descripción
-
-Repositorio que recopila **material de estudio, apuntes, recursos de referencia y proyectos** utilizados durante la formación en Desarrollo de Aplicaciones Multiplataforma.
+Repositorio personal que reúne **aplicaciones web propias, prototipos backend y proyectos de referencia** desarrollados durante la formación en Desarrollo de Aplicaciones Multiplataforma (DAM) y el Máster Full-Stack.
 
 ---
 
-## Estructura
+## Estructura del Repositorio
 
-```
+```text
 Recursos-y-Estudios/
-├── asociacion-amor-fraternal/     # Proyecto web - Asociación
-├── CLASESPW/                      # Clases de Smart Point Web
-├── CosasDeMouredev/               # Recursos del curso de Mouredev
-├── estudiar/                      # Apuntes y temarios de estudio
-│   ├── Base de datos/
-│   ├── Entornos de desarrollo/
-│   ├── FOL/
-│   ├── Lenguaje de marcas/
-│   ├── Programacion/
-│   ├── Sistemas informaticos/
-│   └── examenes plataforma/
-├── iglesiaWeb/                    # Proyecto web - Iglesia
-├── PaginaEstudiar/                # Página web de estudio
-├── Proyecto5-NoSQL-Website/       # Frontend proyecto NoSQL
-├── TrabajoNetfily/                # Proyecto desplegado en Netlify
-├── TrabajoPorrones/               # Proyecto "Los Porrones"
+├── API-REST Amor a Dios/             # Backend inicial con Spring Boot y MongoDB
+├── Landing Iglesia/                  # Recursos gráficos y materiales de la landing
+├── Pagina Club de la Lampara/        # Web bilingüe (ES/EN) del Club de la Lámpara (React + Vite + Tailwind)
+├── pagina para estudiar la biblia/   # SPA de estudio bíblico con lector, notas y sync con Google Drive (TS + Vite)
+├── VersiculosJovenes/                # Desafío 119:9 / ICAF-Verses con retos semanales, XP y Supabase
 └── README.md
 ```
 
 ---
 
-## Contenido
+## Proyectos Principales
 
-### estudiar/
-Apuntes organizados por asignatura en formato Markdown:
-
-| Asignatura | Contenido |
-|---|---|
-| **Base de datos** | Fundamentos, modelado E-R, diseño relacional, normalización, SQL, administración |
-| **Entornos de desarrollo** | Introducción, Git/GitHub, metodologías ágiles, patrones, UML |
-| **FOL** | Salud laboral, riesgos, contratos, seguridad social, empleabilidad |
-| **Lenguaje de marcas** | HTML, CSS, XML |
-| **Programación** | Java, lógica de programación |
-| **Sistemas informáticos** | SO, Linux, redes, virtualización |
-| **Exámenes plataforma** | Preguntas de exámenes anteriores |
-
-### Proyectos de referencia
-Repositorios de proyectos web completos utilizados como referencia o desplegados en plataformas como Netlify.
-
-### CosasDeMouredev
-Material del curso de desarrollo de software de Mouredev. Apuntes, ejercicios y recursos de programación.
+| Proyecto | Descripción | Stack |
+|---|---|---|
+| **Estudio Bíblico SPA** (`pagina para estudiar la biblia`) | Aplicación web interactiva con lector animado, plan anual, comentario de Matthew Henry, notas multicategoría, sección de memorización, estudio musical y sincronización con Google Drive. | React · TypeScript · Vite · Vitest |
+| **Club de la Lámpara** (`Pagina Club de la Lampara`) | Plataforma web bilingüe (ES/EN) con 6 niveles progresivos, modo infantil y modo general para el aprendizaje de 48 versículos oficiales. | React · Vite · Tailwind CSS |
+| **Desafío 119:9 / ICAF-Verses** (`VersiculosJovenes`) | Aplicación juvenil gamificada con retos de 4 semanas, sistema de XP por versículo, Gran Final y ranking en tiempo real. | React · Vite · Tailwind CSS · Supabase |
+| **API-REST Amor a Dios** (`API-REST Amor a Dios`) | Base de servicio backend orientada a la gestión de estudios bíblicos. | Java · Spring Boot · MongoDB · Maven |
+| **Landing Iglesia** (`Landing Iglesia`) | Activos gráficos y recursos visuales para la landing de la congregación (código principal en [amor-fraternal-landing](https://github.com/acusanty16-svg/amor-fraternal-landing)). | Recursos gráficos |
 
 ---
 
-## Uso
+## Autor
 
-Este repositorio funciona como **biblioteca personal de conocimiento**. Los apuntes en `estudiar/` están escritos en Markdown para facilitar la consulta y revisión.
+**David Santiago Acuña Toro** — [@acusanty16-svg](https://github.com/acusanty16-svg)
 
----
-
-*Material de estudio — DAM 2025/2026*
+*Actualizado en noviembre de 2026*
