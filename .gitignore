@@ -1,2 +1,22 @@
+# Vercel y variables de entorno
 .vercel
-.env*
+.env
+.env.*
+!.env.example
+
+# Repositorio independiente (evitar gitlink roto)
+Landing Iglesia/amor-fraternal-react-skeleton/
+
+# Dependencias y compilaciones
+node_modules/
+dist/
+target/
+*.class
+*.jar
+
+# IDEs y sistema
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
